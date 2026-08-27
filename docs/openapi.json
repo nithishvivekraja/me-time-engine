@@ -1,0 +1,94 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ME-TIME™ Experience Engine API",
+    "version": "1.0.0",
+    "description": "Stateless multi-tenant gateway for wait-time optimization and audio delivery"
+  },
+  "paths": {
+    "/v1/webhooks/order-events": {
+      "post": {
+        "summary": "Ingest Host Order Lifecycle Event",
+        "description": "Receives webhooks for order creation, pickup, and delivery transitions",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "order_id": { "type": "string", "example": "ORD_8841" },
+                  "event_type": { "type": "string", "example": "order_created" },
+                  "eta_minutes": { "type": "integer", "example": 28 },
+                  "recipient_context": { "type": "string", "example": "myself" },
+                  "drop_off_instruction": { "type": "string", "example": "dog_alert" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": { "description": "Event accepted and shadow state updated" }
+        }
+      }
+    },
+    "/v1/orders/{orderId}/experience": {
+      "get": {
+        "summary": "Get Composite Waiting Experience Payload",
+        "description": "Fetches live ETA, time-budgeted content items, and proximity knock flags",
+        "parameters": [
+          { "name": "orderId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Composite payload returned in <300ms",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "eta_minutes": { "type": "integer", "example": 24 },
+                    "traffic_status": { "type": "string", "example": "SMOOTH" },
+                    "auto_play_item": {
+                      "type": "object",
+                      "properties": {
+                        "title": { "type": "string", "example": "Generative AI Landscape 2026" },
+                        "duration_minutes": { "type": "integer", "example": 12 },
+                        "provider": { "type": "string", "example": "Spotify Tech" }
+                      }
+                    },
+                    "doorstep_knock_flag": { "type": "boolean", "example": false }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/orders/{orderId}/feedback": {
+      "post": {
+        "summary": "Submit 1-Tap Perceived Wait Satisfaction (PWS)",
+        "parameters": [
+          { "name": "orderId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "response_value": { "type": "string", "enum": ["short_fine", "long_frustrating"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Feedback recorded idempotently" }
+        }
+      }
+    }
+  }
+}

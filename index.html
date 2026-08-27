@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ME-TIME™ Platform Hub & Interactive Showcase</title>
+  
+  <!-- Leaflet Maps CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Swagger UI CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
+  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
+
+  <style>
+    :root {
+      --primary: #FF5200;
+      --navy: #0B132B;
+      --teal: #0E7C7B;
+      --teal-light: #E0F2F1;
+      --gold: #D97706;
+      --danger: #E11D48;
+      --driver-blue: #0284C7;
+      --traffic-green: #10B981;
+      --traffic-red: #EF4444;
+      --bg: #070B14;
+      --surface: #0F172A;
+      --border: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: var(--bg); min-height: 100vh; display: flex; flex-direction: column; color: var(--text); overflow-x: hidden; }
+
+    /* TOP GLOBAL NAVIGATION BAR */
+    .top-navbar {
+      height: 64px; background: #0A0F1D; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+      position: sticky; top: 0; z-index: 5000; backdrop-filter: blur(10px);
+    }
+    .brand-title { font-size: 1.15rem; font-weight: 900; color: #38BDF8; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+    .brand-title span { color: var(--teal); }
+
+    .nav-tabs-group { display: flex; gap: 6px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+    .nav-tab-btn {
+      padding: 8px 16px; border-radius: 8px; border: none; background: transparent;
+      color: var(--text-muted); font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .nav-tab-btn:hover { color: #FFF; }
+    .nav-tab-btn.active { background: var(--teal); color: #FFF; box-shadow: 0 2px 10px rgba(14, 124, 123, 0.4); }
+
+    .nav-actions { display: flex; gap: 10px; }
+    .btn-action-share {
+      padding: 7px 14px; border-radius: 10px; border: 1px solid #334155; background: #1E293B;
+      color: #FFF; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-action-share:hover { background: #334155; }
+
+    /* TAB CONTENT WRAPPERS */
+    .tab-view-container { display: none; padding: 24px; width: 100%; max-width: 1540px; margin: 0 auto; flex: 1; }
+    .tab-view-container.active { display: flex; flex-direction: column; }
+
+    /* TAB 1: SANDBOX STYLES */
+    .dual-viewport-layout { display: flex; flex-wrap: wrap; gap: 24px; width: 100%; justify-content: center; align-items: flex-start; }
+    .control-console {
+      flex: 1; min-width: 320px; max-width: 380px; background: #111827; border: 1px solid #1F2937;
+      border-radius: 24px; padding: 20px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6);
+    }
+    .console-title { font-size: 1.1rem; font-weight: 800; color: #38BDF8; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .console-section { margin-bottom: 14px; }
+    .console-label { font-size: 0.68rem; text-transform: uppercase; font-weight: 700; color: #64748B; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .console-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .console-btn-grid.triple { grid-template-columns: repeat(3, 1fr); }
+    .console-btn {
+      padding: 8px 10px; border-radius: 10px; border: 1px solid #374151; background: #1F2937;
+      color: #F8FAFC; font-size: 0.74rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s;
+    }
+    .console-btn:hover { background: #374151; border-color: #4B5563; }
+    .console-btn.active { background: var(--teal); border-color: #2DD4BF; color: #FFF; }
+    .console-btn.driver-active { background: #0284C7; border-color: #38BDF8; color: #FFF; font-weight: 800; }
+    .console-btn.danger { background: #881337; border-color: #BE123C; color: #FFE4E6; grid-column: span 2; }
+    .console-btn.door { background: #075985; border-color: #0284C7; color: #E0F2FE; grid-column: span 2; }
+    .console-btn.success { background: #064E3B; border-color: #059669; color: #D1FAE5; grid-column: span 2; }
+    .telemetry-feed {
+      background: #030712; border: 1px solid #1F2937; border-radius: 14px; padding: 10px 12px;
+      font-family: 'Fira Code', Consolas, monospace; font-size: 0.7rem; color: #34D399; height: 110px; overflow-y: auto; line-height: 1.45;
+    }
+
+    .device-column { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .device-title-tag {
+      font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px;
+    }
+    .device-title-tag.customer { background: #0E7C7B; color: #FFF; }
+    .device-title-tag.driver { background: #0284C7; color: #FFF; }
+
+    .phone-mockup {
+      width: 375px; height: 812px; background: #F8FAFC; border-radius: 46px;
+      box-shadow: 0 0 0 10px #1E293B, 0 25px 60px -15px rgba(0,0,0,0.7);
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
+    }
+    .notch-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 40px; padding: 0 24px;
+      display: flex; justify-content: space-between; align-items: center; z-index: 2000;
+      font-size: 0.75rem; font-weight: 700; color: #0F172A; pointer-events: none;
+    }
+    .island-pill { width: 105px; height: 24px; background: #000; border-radius: 20px; margin-top: 2px; }
+    .app-screen { flex: 1; overflow-y: auto; padding-top: 40px; padding-bottom: 80px; position: relative; }
+    .app-screen::-webkit-scrollbar { display: none; }
+
+    .map-header-wrap { height: 280px; width: 100%; position: relative; }
+    #customerMap, #driverMap { height: 100%; width: 100%; }
+
+    .map-telemetry-chip {
+      position: absolute; top: 12px; left: 12px; background: rgba(11, 19, 43, 0.9);
+      backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
+      padding: 5px 10px; display: flex; align-items: center; gap: 6px; z-index: 1000; font-size: 0.68rem; font-weight: 700; color: #FFF;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--traffic-green); }
+    .status-dot.red { background: var(--traffic-red); }
+
+    .unified-tracker-card {
+      background: #FFFFFF; border-radius: 22px; margin: -24px 14px 12px; padding: 14px 16px;
+      position: relative; z-index: 500; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); border: 1px solid #EDF2F7;
+    }
+    .tracker-header-row { display: flex; justify-content: space-between; align-items: center; }
+    .tracker-heading { font-size: 0.9rem; font-weight: 800; color: var(--navy); }
+    .tracker-sub { font-size: 0.72rem; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+    .tracker-sub.delay-mode { color: var(--danger); }
+    .eta-timer-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); line-height: 1; }
+
+    .inline-delay-callout {
+      display: none; background: #FFF1F2; border-radius: 10px; padding: 6px 8px;
+      font-size: 0.68rem; color: var(--danger); font-weight: 700; align-items: center; gap: 5px; margin-top: 6px;
+    }
+    .inline-delay-callout.active { display: flex; }
+
+    .metime-hero-deluxe {
+      background: linear-gradient(135deg, #0F172A 0%, #0E7C7B 50%, #059669 100%);
+      border-radius: 24px; padding: 18px; margin: 0 14px 12px; color: #FFFFFF;
+      position: relative; overflow: hidden; box-shadow: 0 14px 30px -6px rgba(14, 124, 123, 0.45); border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .hero-top-badge-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .hero-sparkle-tag { font-size: 0.65rem; font-weight: 800; background: rgba(255,255,255,0.22); padding: 3px 8px; border-radius: 14px; }
+    .hero-eta-pill { font-size: 0.62rem; font-weight: 800; color: #FCD34D; background: rgba(0, 0, 0, 0.35); padding: 2px 6px; border-radius: 8px; }
+    .hero-main-title { font-size: 1rem; font-weight: 900; line-height: 1.25; margin-bottom: 3px; }
+    .hero-punchline { font-size: 0.72rem; opacity: 0.9; margin-bottom: 14px; }
+    .hero-action-cluster { display: flex; gap: 8px; align-items: center; }
+    .btn-hero-play {
+      background: #FFFFFF; color: var(--navy); border: none; border-radius: 14px;
+      padding: 10px 18px; font-size: 0.8rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-hero-explore-glow {
+      background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(8px); color: #FFF; border-radius: 14px; padding: 9px 14px;
+      font-size: 0.74rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+
+    .collapsible-feed-section { display: none; background: #F1F5F9; border-radius: 22px; padding: 12px 0 16px; margin: 0 14px 14px; border: 1px solid #E2E8F0; }
+    .collapsible-feed-section.open { display: block; }
+    .category-dock { display: flex; gap: 6px; padding: 0 14px 10px; overflow-x: auto; }
+    .category-dock::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      flex-shrink: 0; display: flex; align-items: center; gap: 4px; background: #FFFFFF; border: 1px solid #EDF2F7;
+      border-radius: 12px; padding: 6px 10px; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: var(--navy);
+    }
+    .cat-btn.active { background: var(--navy); color: #FFF; }
+    .content-carousel-container { display: flex; gap: 10px; padding: 2px 14px 8px; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .content-carousel-container::-webkit-scrollbar { display: none; }
+    .carousel-card {
+      flex: 0 0 210px; scroll-snap-align: start; background: #FFFFFF; border: 1.5px solid #EDF2F7;
+      border-radius: 16px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
+    }
+
+    .doorstep-hud {
+      display: none; position: absolute; top: 46px; left: 12px; right: 12px;
+      background: linear-gradient(135deg, #0B132B 0%, #1E293B 100%); border: 2px solid #38BDF8;
+      border-radius: 22px; padding: 12px 14px; z-index: 2500; color: #FFFFFF; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .doorstep-hud.active { display: flex; align-items: center; gap: 12px; }
+
+    .rider-sheet-backdrop {
+      position: absolute; inset: 0; background: rgba(11, 19, 43, 0.6); backdrop-filter: blur(4px);
+      z-index: 3000; display: none; align-items: flex-end;
+    }
+    .rider-sheet-backdrop.active { display: flex; }
+    .rider-sheet-card {
+      background: #FFFFFF; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px;
+      padding: 16px 16px 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+    }
+
+    /* DRIVER STYLES */
+    .driver-screen-body { flex: 1; display: flex; flex-direction: column; background: #0F172A; color: #F8FAFC; padding-top: 40px; }
+    .driver-top-lang-bar {
+      background: #1E293B; padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155;
+    }
+    .btn-driver-lang-pill {
+      background: #0B132B; border: 1px solid #334155; color: #CBD5E1; padding: 3px 8px; border-radius: 8px; font-size: 0.68rem; font-weight: 700; cursor: pointer;
+    }
+    .btn-driver-lang-pill.active { background: #0284C7; border-color: #38BDF8; color: #FFF; }
+    .driver-turn-banner { background: #0284C7; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .driver-instructions-deck { flex: 1; padding: 10px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .driver-card-box { background: #1E293B; border: 1px solid #334155; border-radius: 16px; padding: 10px 12px; }
+    .driver-card-title { font-size: 0.68rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 4px; }
+    .building-photo-preview { display: flex; gap: 8px; align-items: center; background: #0B132B; border-radius: 10px; padding: 6px 8px; }
+    .driver-caution-pill { background: #881337; border: 1px solid #BE123C; color: #FFE4E6; border-radius: 10px; padding: 6px 8px; font-size: 0.72rem; font-weight: 700; }
+    .driver-caution-pill.gate { background: #075985; border-color: #0284C7; color: #E0F2FE; }
+    .driver-action-footer { display: flex; gap: 8px; padding: 8px 14px 14px; background: #111827; border-top: 1px solid #1F2937; }
+    .btn-driver-cta { flex: 1; padding: 9px; border-radius: 10px; border: none; font-size: 0.74rem; font-weight: 800; cursor: pointer; }
+    .btn-driver-cta.call { background: #1E293B; color: #38BDF8; border: 1px solid #334155; }
+    .btn-driver-cta.nav { background: #0284C7; color: #FFF; }
+
+    .driver-payout-modal {
+      position: absolute; inset: 0; background: rgba(7, 11, 20, 0.9); backdrop-filter: blur(8px);
+      z-index: 3500; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .driver-payout-modal.active { display: flex; }
+    .payout-card { background: #1E293B; border: 1px solid #38BDF8; border-radius: 24px; padding: 20px; width: 100%; color: #FFF; }
+    .payout-item-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 6px 0; border-bottom: 1px solid #334155; }
+    .payout-total-row { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 900; color: #34D399; margin-top: 8px; }
+
+    .audio-dock {
+      position: absolute; bottom: 0; left: 0; right: 0; background: #FFFFFF;
+      border-top: 1px solid #EDF2F7; padding: 10px 16px 20px; transform: translateY(100%); transition: transform 0.3s ease; z-index: 1800;
+    }
+    .audio-dock.active { transform: translateY(0); }
+    .pws-overlay {
+      position: absolute; inset: 0; background: rgba(11, 19, 43, 0.85); backdrop-filter: blur(8px);
+      z-index: 3500; display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .pws-overlay.active { display: flex; }
+    .pws-box { background: #FFFFFF; border-radius: 24px; padding: 22px 18px; text-align: center; width: 100%; color: var(--navy); }
+    .pws-btn { width: 100%; padding: 12px; border-radius: 14px; border: 1px solid #EDF2F7; background: #F8FAFC; font-size: 0.82rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
+
+    /* TAB 2, 3, 4: DOCS & SWAGGER */
+    .doc-page-layout { background: #0F172A; border: 1px solid var(--border); border-radius: 20px; padding: 32px; color: #E2E8F0; line-height: 1.6; }
+    .doc-page-layout h1 { font-size: 1.8rem; color: #38BDF8; margin-bottom: 12px; }
+    .doc-page-layout h2 { font-size: 1.3rem; color: var(--teal); margin: 24px 0 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    .doc-page-layout p { font-size: 0.95rem; color: #CBD5E1; margin-bottom: 14px; }
+    .doc-callout { background: #134E4A; border-left: 4px solid #2DD4BF; padding: 14px 18px; border-radius: 8px; margin: 16px 0; font-size: 0.9rem; }
+    
+    .data-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 0.85rem; }
+    .data-table th { background: #1E293B; color: #38BDF8; padding: 10px 14px; text-align: left; border: 1px solid #334155; }
+    .data-table td { padding: 10px 14px; border: 1px solid #334155; background: #0B132B; color: #E2E8F0; }
+
+    .code-block-box { background: #030712; border: 1px solid #1F2937; border-radius: 12px; padding: 16px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.82rem; color: #38BDF8; overflow-x: auto; margin: 14px 0; }
+
+    #swagger-ui-container { background: #FFF; border-radius: 16px; padding: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVBAR -->
+  <div class="top-navbar">
+    <div class="brand-title">
+      <i data-lucide="sparkles" style="color:var(--teal)"></i> ME-TIME™ <span>Platform Hub</span>
+    </div>
+
+    <div class="nav-tabs-group">
+      <button class="nav-tab-btn active" onclick="switchGlobalTab('sandbox', this)"><i data-lucide="smartphone"></i> Live Dual Sandbox</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('prd', this)"><i data-lucide="book-open"></i> Product PRD & Guide</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('swagger', this)"><i data-lucide="terminal"></i> Swagger / API Explorer</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('schema', this)"><i data-lucide="database"></i> Schema & DDL</button>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn-action-share" onclick="copyShareUrl()"><i data-lucide="share-2" style="width:14px"></i> Share Showcase</button>
+    </div>
+  </div>
+
+  <!-- TAB 1: SANDBOX -->
+  <div class="tab-view-container active" id="tab-sandbox">
+    <div class="dual-viewport-layout">
+      
+      <!-- CONTROLS PANEL -->
+      <div class="control-console">
+        <div class="console-title"><i data-lucide="sliders"></i> Testing Orchestrator</div>
+
+        <div class="console-section">
+          <div class="console-label">1. Customer Profile (Media Mix)</div>
+          <div class="console-btn-grid">
+            <button class="console-btn active" id="btnProfNithish" onclick="setProfile('nithish')">👤 Nithish (Tech • EN)</button>
+            <button class="console-btn" id="btnProfRegional" onclick="setProfile('regional')">🎧 Priya (Tamil Hits)</button>
+          </div>
+        </div>
+
+        <div class="console-section">
+          <div class="console-label">2. Recipient Context (Ordering For)</div>
+          <div class="console-btn-grid">
+            <button class="console-btn active" id="btnRecMyself" onclick="setRecipientMode('myself')">🏠 Myself</button>
+            <button class="console-btn" id="btnRecFriend" onclick="setRecipientMode('friend')">🎁 Friends (Rahul)</button>
+            <button class="console-btn" id="btnRecFamily" onclick="setRecipientMode('family')">❤️ Family (Mom)</button>
+            <button class="console-btn" id="btnRecOthers" onclick="setRecipientMode('others')">🏢 Others (Office)</button>
+          </div>
+        </div>
+
+        <div class="console-section">
+          <div class="console-label">3. Driver Language (Console Override)</div>
+          <div class="console-btn-grid triple">
+            <button class="console-btn driver-active" id="btnLangTa" onclick="setDriverLanguage('ta')">🇮🇳 தமிழ்</button>
+            <button class="console-btn" id="btnLangHi" onclick="setDriverLanguage('hi')">🇮🇳 हिन्दी</button>
+            <button class="console-btn" id="btnLangEn" onclick="setDriverLanguage('en')">🌐 English</button>
+          </div>
+        </div>
+
+        <div class="console-section">
+          <div class="console-label">4. Drop-off Instruction Flag</div>
+          <div class="console-btn-grid">
+            <button class="console-btn active" id="btnInstNormal" onclick="setDropContext('normal')"><i data-lucide="home"></i> Standard Drop</button>
+            <button class="console-btn" id="btnInstDog" onclick="setDropContext('dog')"><i data-lucide="alert-triangle"></i> Beware of Dog 🐕</button>
+            <button class="console-btn" id="btnInstGate" onclick="setDropContext('gate')"><i data-lucide="shield-alert"></i> Gate Drop / Away</button>
+            <button class="console-btn" id="btnInstQuiet" onclick="setDropContext('quiet')"><i data-lucide="volume-x"></i> Do Not Ring Bell</button>
+          </div>
+        </div>
+
+        <div class="console-section">
+          <div class="console-label">5. Delivery Lifecycle Control</div>
+          <div class="console-btn-grid">
+            <button class="console-btn" id="btnHotel" onclick="setLifecycle('hotel')">1. Cooking</button>
+            <button class="console-btn active" id="btnPickup" onclick="setLifecycle('pickup')">2. Picked Up</button>
+            <button class="console-btn" id="btnTransit" onclick="setLifecycle('transit')">3. In Transit</button>
+            <button class="console-btn door" id="btnDoor" onclick="setLifecycle('doorstep')">🚪 4. Proximity (Knock)</button>
+            <button class="console-btn danger" id="btnDelay" onclick="triggerDynamicDelay()">⚠️ Traffic Delay (+10m)</button>
+            <button class="console-btn success" id="btnDeliver" onclick="setLifecycle('delivered')">✅ 5. Mark Delivered</button>
+          </div>
+        </div>
+
+        <div class="telemetry-feed" id="telemetryBox">
+          [SYS] Hub Ready. Pure OpenStreetMap tiles active without API keys.<br>
+          [ORCHESTRATOR] Full real-time synchronization active.
+        </div>
+      </div>
+
+      <!-- CUSTOMER DEVICE -->
+      <div class="device-column">
+        <div class="device-title-tag customer"><i data-lucide="user"></i> Customer App View</div>
+
+        <div class="phone-mockup">
+          <div class="notch-bar">
+            <span>12:45</span>
+            <div class="island-pill"></div>
+            <div style="display:flex; gap:5px;"><i data-lucide="wifi" style="width:13px"></i><i data-lucide="battery" style="width:13px"></i></div>
+          </div>
+
+          <div class="doorstep-hud" id="customerDoorstepHud">
+            <div style="font-size:26px;">🚪✊</div>
+            <div>
+              <div style="font-size:0.82rem; font-weight:800; color:#38BDF8;" id="custHudTitle">Rider Knocking at Door!</div>
+              <div style="font-size:0.7rem; opacity:0.9;" id="custHudSub">Muthu has reached and is knocking at your door!</div>
+            </div>
+          </div>
+
+          <div class="app-screen">
+            <div class="map-header-wrap">
+              <div class="map-telemetry-chip">
+                <span class="status-dot" id="trafficDotCust"></span>
+                <span id="custMapTelem">31°C • Traffic Smooth</span>
+              </div>
+              <div id="customerMap"></div>
+            </div>
+
+            <div class="unified-tracker-card">
+              <div class="tracker-header-row">
+                <div>
+                  <div class="tracker-heading" id="custOrderHeading">Order Picked Up • Dominos</div>
+                  <div class="tracker-sub" id="custOrderSub"><i data-lucide="navigation" style="width:12px"></i> Rider on the way to destination</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:0.65rem; font-weight:700; color:#718096; text-transform:uppercase;">ETA</div>
+                  <div class="eta-timer-val" id="custEtaDisplay">24 MIN</div>
+                </div>
+              </div>
+              <div class="inline-delay-callout" id="custDelayNotice">
+                <i data-lucide="clock-alert" style="width:14px;"></i>
+                <span>Traffic Delay (+10m): Extended bonus track auto-queued</span>
+              </div>
+            </div>
+
+            <div class="metime-hero-deluxe">
+              <div class="hero-top-badge-row">
+                <div class="hero-sparkle-tag"><i data-lucide="sparkles" style="width:10px"></i> ME-TIME™ ENGINE</div>
+                <div class="hero-eta-pill" id="custHeroPill">24 MINS OF YOU</div>
+              </div>
+              <div class="hero-main-title" id="custHeroTitle">Turn Dead Wait into Prime Time</div>
+              <div class="hero-punchline">Curated audio matched to your exact arrival countdown.</div>
+              
+              <div class="hero-action-cluster">
+                <button class="btn-hero-play" onclick="autoPlaySmartQueue()"><i data-lucide="play" style="width:14px; fill:var(--navy);"></i> Instant Play</button>
+                <button class="btn-hero-explore-glow" id="btnExploreMoodsGlow" onclick="toggleFeedDrawer()">
+                  <i data-lucide="compass" style="width:13px;"></i> <span id="browseBtnLabel">Explore Moods</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="collapsible-feed-section" id="feedDrawer">
+              <div class="category-dock">
+                <button class="cat-btn active" onclick="switchCategory('podcasts', this)"><i data-lucide="headphones" style="width:12px"></i> Podcasts</button>
+                <button class="cat-btn" onclick="switchCategory('music', this)"><i data-lucide="music-2" style="width:12px"></i> Music</button>
+                <button class="cat-btn" onclick="switchCategory('news', this)"><i data-lucide="newspaper" style="width:12px"></i> News</button>
+                <button class="cat-btn" onclick="switchCategory('games', this)"><i data-lucide="gamepad-2" style="width:12px"></i> Games</button>
+              </div>
+              <div class="content-carousel-container" id="contentCarousel"></div>
+            </div>
+          </div>
+
+          <!-- RIDER MODAL -->
+          <div class="rider-sheet-backdrop" id="riderSheetModal" onclick="closeRiderModal(event)">
+            <div class="rider-sheet-card" onclick="event.stopPropagation()">
+              <div style="width:36px; height:4px; background:#CBD5E1; border-radius:2px; margin:0 auto 12px;"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,#0E7C7B,#10B981); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px;">🛵</div>
+                  <div>
+                    <div style="font-size:0.95rem; font-weight:800; color:var(--navy);">Muthu Krishnan</div>
+                    <div style="font-size:0.65rem; font-weight:700; color:#B45309; background:#FEF3C7; padding:1px 6px; border-radius:6px;">★ 4.93 Star Champion • EV Fleet</div>
+                  </div>
+                </div>
+                <button class="console-btn" style="padding:4px 8px; border-radius:50%;" onclick="document.getElementById('riderSheetModal').classList.remove('active')"><i data-lucide="x" style="width:14px;"></i></button>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="console-btn" style="flex:1; padding:10px; background:#F8FAFC; color:var(--navy);" onclick="alert('Tip of ₹30 added for Muthu!')"><i data-lucide="heart" style="width:13px; color:#E11D48;"></i> Tip Partner</button>
+                <button class="console-btn" style="flex:1; padding:10px; background:var(--teal); color:#FFF; border-color:var(--teal);" onclick="alert('Calling Delivery Partner Muthu (+91 98840 XXXXX)...')"><i data-lucide="phone" style="width:13px;"></i> Call Partner</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="audio-dock" id="customerAudioDock">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:0.8rem; font-weight:800; color:var(--navy);" id="custTrackTitle">Track Name</div>
+                <div style="font-size:0.65rem; color:var(--teal); font-weight:700;">Playing Audible Stream</div>
+              </div>
+              <button class="console-btn" style="padding:6px 10px; border-radius:50%; width:32px; height:32px;" onclick="togglePlayPause()"><i data-lucide="pause" id="playBtnIcon" style="width:14px"></i></button>
+            </div>
+          </div>
+
+          <div class="pws-overlay" id="custPwsModal">
+            <div class="pws-box">
+              <div style="font-size:24px; color:#059669; margin-bottom:4px;">✅</div>
+              <div style="font-size:1.1rem; font-weight:800; margin-bottom:4px;">Order Delivered!</div>
+              <div style="font-size:0.75rem; color:#718096; margin-bottom:14px;">How was your Me-Time waiting experience?</div>
+              <button class="pws-btn" onclick="submitPwsFeedback('short_fine')">⚡ Felt short & entertaining</button>
+              <button class="pws-btn" onclick="submitPwsFeedback('long_frustrating')">⏳ Felt long & frustrating</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRIVER DEVICE -->
+      <div class="device-column">
+        <div class="device-title-tag driver"><i data-lucide="navigation"></i> <span id="driverTerminalHeader">டெலிவரி டெர்மினல் (தமிழ்)</span></div>
+
+        <div class="phone-mockup">
+          <div class="notch-bar" style="color:#FFF;">
+            <span>12:45</span>
+            <div class="island-pill" style="background:#FFF;"></div>
+            <div style="display:flex; gap:5px;"><i data-lucide="wifi" style="width:13px"></i><i data-lucide="battery" style="width:13px"></i></div>
+          </div>
+
+          <div class="driver-screen-body">
+            <div class="driver-top-lang-bar">
+              <div class="lang-bar-label"><i data-lucide="globe" style="width:12px;"></i> <span id="driverLangBarLabel">மொழி:</span></div>
+              <div class="driver-quick-lang-group">
+                <button class="btn-driver-lang-pill active" id="pillLangTa" onclick="setDriverLanguage('ta')">தமிழ்</button>
+                <button class="btn-driver-lang-pill" id="pillLangHi" onclick="setDriverLanguage('hi')">हिन्दी</button>
+                <button class="btn-driver-lang-pill" id="pillLangEn" onclick="setDriverLanguage('en')">EN</button>
+              </div>
+            </div>
+
+            <div class="driver-turn-banner">
+              <div>
+                <div class="turn-text" id="driverNavHeading">இன்னும் 200 மீட்டரில் வலதுபுறம் திரும்பவும்</div>
+                <div class="turn-sub" id="driverNavSub">அண்ணா சாலை • இலக்கு: 4வது தளம்</div>
+              </div>
+              <i data-lucide="corner-up-right" style="width:24px; color:#FFF;"></i>
+            </div>
+
+            <div class="driver-map-wrap">
+              <div id="driverMap"></div>
+            </div>
+
+            <div class="driver-instructions-deck">
+              <div class="driver-caution-pill" id="driverAlertBanner" style="display:none;">
+                <i data-lucide="alert-triangle" style="width:16px;"></i> <span id="driverAlertText">எச்சரிக்கை: வாசலில் நாய் உள்ளது!</span>
+              </div>
+
+              <div class="driver-card-box">
+                <div class="driver-card-title"><i data-lucide="camera"></i> <span id="driverPhotoTitle">கட்டிட புகைப்படம் & வழிக்குறிப்பு</span></div>
+                <div class="building-photo-preview">
+                  <div class="building-img-thumb">🏢</div>
+                  <div class="building-meta" id="driverBuildingDesc">
+                    <b>கிரீன்வுட் ஹைட்ஸ் (டவர் B)</b><br>
+                    நீல நிற கேட் • 4வது தளம், பிளாட் 402 செல்லவும்.<br>
+                    <span style="color:#38BDF8; font-weight:700;">உறுதிப்படுத்தப்பட்ட புகைப்படம் இணைக்கப்பட்டுள்ளது</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="driver-card-box">
+                <div class="driver-card-title"><i data-lucide="file-text"></i> <span id="driverNoteTitle">வாடிக்கையாளர் குறிப்பு</span></div>
+                <div style="font-size:0.75rem; color:#CBD5E1; line-height:1.4;" id="driverCustomerNote">"காலிங் பெல்லை இருமுறை அடிக்கவும். வாசலில் வைக்கவும்."</div>
+              </div>
+            </div>
+
+            <div class="driver-action-footer">
+              <button class="btn-driver-cta call" onclick="alert('Calling customer...')"><i data-lucide="phone" style="width:14px"></i> <span id="btnTextCall">அழைக்கவும்</span></button>
+              <button class="btn-driver-cta nav" onclick="alert('Google Maps Navigation Launched')"><i data-lucide="navigation-2" style="width:14px"></i> <span id="btnTextNav">வழிசெலுத்தல்</span></button>
+            </div>
+          </div>
+
+          <div class="driver-payout-modal" id="driverPayoutModal">
+            <div class="payout-card">
+              <div style="text-align:center; margin-bottom:12px;">
+                <div style="font-size:28px;">💰</div>
+                <div style="font-size:1.1rem; font-weight:900; color:#38BDF8;" id="payoutModalTitle">டெலிவரி முடிந்தது!</div>
+                <div style="font-size:0.72rem; color:#94A3B8;" id="payoutModalSub">வருவாய் உங்கள் கணக்கில் வரவு வைக்கப்பட்டது</div>
+              </div>
+              <div class="payout-item-row"><span id="payoutLblBase">அடிப்படை கட்டணம் (Base Pay)</span><span>₹38.00</span></div>
+              <div class="payout-item-row"><span id="payoutLblTime">நேரடி போனஸ் (On-Time Bonus)</span><span>₹10.00</span></div>
+              <div class="payout-item-row"><span id="payoutLblTip">வாடிக்கையாளர் டிப் (Tip)</span><span>₹30.00</span></div>
+              <div class="payout-total-row"><span id="payoutLblTotal">மொத்த வருவாய்:</span><span>₹78.00</span></div>
+              <button class="console-btn" style="width:100%; margin-top:14px; background:#0284C7; border-color:#38BDF8; padding:10px; color:#FFF; font-weight:800;" onclick="document.getElementById('driverPayoutModal').classList.remove('active')">
+                <span id="payoutBtnDone">அடுத்த ஆர்டருக்கு தயாராகுங்கள்</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 2: PRD -->
+  <div class="tab-view-container" id="tab-prd">
+    <div class="doc-page-layout">
+      <h1>ME-TIME™ Product Requirements & Feature Specification</h1>
+      <p><b>Version:</b> 1.0 Enterprise • <b>Status:</b> Production Ready • <b>Target Integration:</b> Swiggy / Zomato / Uber Eats</p>
+      
+      <div class="doc-callout">
+        <b>Core Thesis:</b> ME-TIME transforms dead delivery waiting windows (20–45 min) into high-value ambient leisure sessions. It delivers certainty on the tracking map and matches content duration to the arrival SLA with zero decision fatigue.
+      </div>
+
+      <h2>1. The Problem Space</h2>
+      <p>• <b>Compulsive Staring:</b> 81% of active food delivery users open their tracking screens 2–5+ times due to anxious uncertainty over erratic ETAs.<br>
+      • <b>Doom-Scrolling:</b> 58% of waiting users fall into unproductive social media scrolling while waiting for deliveries.<br>
+      • <b>Doorstep Friction:</b> Unannounced arrivals and language barriers between customers and drivers cause missed drops and phone call interruptions.</p>
+
+      <h2>2. Core Features & Capabilities</h2>
+      <table class="data-table">
+        <tr><th>Feature Component</th><th>Capability</th><th>User Benefit</th></tr>
+        <tr><td><b>1-Tap Ambient Auto-Play</b></td><td>Calculates live time budget (ETA - Time) and plays exact-length audio.</td><td>Eliminates decision fatigue; screen-off friendly.</td></tr>
+        <tr><td><b>Dynamic Delay Auto-Append</b></td><td>Automatically appends +10m bonus tracks when logistics delays occur.</td><td>Reframes delivery delay into bonus leisure time.</td></tr>
+        <tr><td><b>Audio-Ducked 3D Knock</b></td><td>Lowers media volume to 10% and vibrates phone when driver is &lt;50m away.</td><td>Zero missed doorbells or surprise drop-offs.</td></tr>
+        <tr><td><b>Multilingual Driver Terminal</b></td><td>Translates drop instructions (Pet Alert, Gate Drop) into Tamil, Hindi, or English.</td><td>Eliminates delivery partner communication friction.</td></tr>
+      </table>
+
+      <h2>3. Non-Functional Performance Standards (NFRs)</h2>
+      <p>• <b>Client SDK Budget:</b> ≤ 150 KB gzipped production bundle.<br>
+      • <b>Hot-Path Latency:</b> &lt;300 ms on 4G cellular networks for composite experience payloads.<br>
+      • <b>Silent Fail-Safe:</b> If ME-TIME engine services fail, the host map renders natively without error dialogs.</p>
+    </div>
+  </div>
+
+  <!-- TAB 3: SWAGGER -->
+  <div class="tab-view-container" id="tab-swagger">
+    <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:16px;">
+      <h2 style="color:#38BDF8; margin-bottom:6px;">ME-TIME™ OpenAPI 3.1 Interactive Explorer</h2>
+      <p style="color:#94A3B8; font-size:0.85rem;">Live test and inspect endpoint contracts for Order Ingestion, Wait-Time Experience, and Feedback APIs.</p>
+    </div>
+    <div id="swagger-ui-container"></div>
+  </div>
+
+  <!-- TAB 4: SCHEMA -->
+  <div class="tab-view-container" id="tab-schema">
+    <div class="doc-page-layout">
+      <h1>Relational Database Schema (PostgreSQL DDL)</h1>
+      <p>Production multi-tenant database schema implementing shadow order states, delay tracking, and feedback collection.</p>
+
+      <div class="code-block-box">
+<pre>
+-- 1. MULTI-TENANT ISOLATION
+CREATE TABLE tenants (
+    tenant_id VARCHAR(32) PRIMARY KEY,
+    tenant_name VARCHAR(120) NOT NULL,
+    vertical VARCHAR(40) NOT NULL, -- 'food_delivery', 'quick_commerce'
+    status VARCHAR(20) DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 2. SHADOW ORDER STATE ENGINE
+CREATE TABLE orders (
+    order_id VARCHAR(32) PRIMARY KEY,
+    tenant_id VARCHAR(32) REFERENCES tenants(tenant_id),
+    customer_id VARCHAR(32) NOT NULL,
+    status VARCHAR(20) NOT NULL, -- 'cooking', 'picked_up', 'in_transit', 'delivered'
+    original_eta TIMESTAMP WITH TIME ZONE NOT NULL,
+    current_eta TIMESTAMP WITH TIME ZONE NOT NULL,
+    cuisine_category VARCHAR(40),
+    device_type VARCHAR(20),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_orders_tenant_status ON orders(tenant_id, status);
+
+-- 3. LOGISTICS SLIPPAGE & EXPLANATION EVENTS
+CREATE TABLE delay_events (
+    delay_event_id BIGSERIAL PRIMARY KEY,
+    order_id VARCHAR(32) REFERENCES orders(order_id),
+    slippage_minutes INT NOT NULL,
+    logistics_status_code VARCHAR(40),
+    message_text VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 4. CURATED AMBIENT CONTENT ITEMS
+CREATE TABLE content_items (
+    content_id VARCHAR(32) PRIMARY KEY,
+    type VARCHAR(30) NOT NULL, -- 'podcast', 'music', 'news', 'game'
+    title VARCHAR(120) NOT NULL,
+    duration_seconds INT NOT NULL,
+    provider_name VARCHAR(60) NOT NULL, -- 'Spotify', 'Audible', 'Reuters'
+    deep_link VARCHAR(255) NOT NULL,
+    category_tags VARCHAR(100),
+    active BOOLEAN DEFAULT TRUE
+);
+
+-- 5. PERCEIVED WAIT SATISFACTION (PWS) FEEDBACK (IDEMPOTENT)
+CREATE TABLE feedback_responses (
+    feedback_id BIGSERIAL PRIMARY KEY,
+    order_id VARCHAR(32) UNIQUE REFERENCES orders(order_id),
+    response_value VARCHAR(20) NOT NULL CHECK (response_value IN ('short_fine', 'long_frustrating', 'no_response')),
+    response_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchGlobalTab(tabKey, btn) {
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-view-container').forEach(t => t.classList.remove('active'));
+      
+      btn.classList.add('active');
+      document.getElementById(`tab-${tabKey}`).classList.add('active');
+
+      if (tabKey === 'sandbox') {
+        setTimeout(() => {
+          if (custMap) custMap.invalidateSize();
+          if (driverMap) driverMap.invalidateSize();
+        }, 150);
+      }
+    }
+
+    function copyShareUrl() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Hub Showcase URL copied to clipboard!");
+    }
+
+    const SWAGGER_SPEC = {
+      openapi: "3.1.0",
+      info: {
+        title: "ME-TIME™ Experience Engine API",
+        version: "1.0.0",
+        description: "Stateless multi-tenant gateway for wait-time optimization and audio delivery"
+      },
+      paths: {
+        "/v1/webhooks/order-events": {
+          post: {
+            summary: "Ingest Host Order Lifecycle Event",
+            description: "Receives webhooks for order creation, pickup, and delivery transitions",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      order_id: { type: "string", example: "ORD_8841" },
+                      event_type: { type: "string", example: "order_created" },
+                      eta_minutes: { type: "integer", example: 28 },
+                      recipient_context: { type: "string", example: "myself" },
+                      drop_off_instruction: { type: "string", example: "dog_alert" }
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              "202": { description: "Event accepted and shadow state updated" }
+            }
+          }
+        },
+        "/v1/orders/{orderId}/experience": {
+          get: {
+            summary: "Get Composite Waiting Experience Payload",
+            description: "Fetches live ETA, time-budgeted content items, and proximity knock flags",
+            parameters: [
+              { name: "orderId", in: "path", required: true, schema: { type: "string" } }
+            ],
+            responses: {
+              "200": {
+                description: "Composite payload returned in <300ms",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        eta_minutes: { type: "integer", example: 24 },
+                        traffic_status: { type: "string", example: "SMOOTH" },
+                        auto_play_item: {
+                          type: "object",
+                          properties: {
+                            title: { type: "string", example: "Generative AI Landscape 2026" },
+                            duration_minutes: { type: "integer", example: 12 },
+                            provider: { type: "string", example: "Spotify Tech" }
+                          }
+                        },
+                        doorstep_knock_flag: { type: "boolean", example: false }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/v1/orders/{orderId}/feedback": {
+          post: {
+            summary: "Submit 1-Tap Perceived Wait Satisfaction (PWS)",
+            parameters: [
+              { name: "orderId", in: "path", required: true, schema: { type: "string" } }
+            ],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      response_value: { type: "string", enum: ["short_fine", "long_frustrating"] }
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              "201": { description: "Feedback recorded idempotently" }
+            }
+          }
+        }
+      }
+    };
+
+    let currentEtaMinutes = 24;
+    let currentProfile = 'nithish';
+    let recipientType = 'myself';
+    let driverLang = 'ta';
+    let dropMode = 'normal';
+    let selectedCat = 'podcasts';
+    let isDelayActive = false;
+    let isDrawerOpen = false;
+    let deliveryState = 'pickup';
+
+    const DRIVER_I18N = {
+      ta: {
+        tag: "தமிழ்",
+        terminalHeader: "டெலிவரி டெர்மினல் (தமிழ்)",
+        langBarLabel: "மொழி:",
+        pinLabel: "பிளாட் 402 • தளம் 4",
+        btnCall: "அழைக்கவும்",
+        btnNav: "வழிசெலுத்தல்",
+        payoutTitle: "டெலிவரி முடிந்தது!",
+        payoutSub: "வருவாய் உங்கள் கணக்கில் வரவு வைக்கப்பட்டது",
+        payoutBase: "அடிப்படை கட்டணம் (Base Pay)",
+        payoutTime: "நேரடி போனஸ் (On-Time Bonus)",
+        payoutTip: "வாடிக்கையாளர் டிப் (Tip)",
+        payoutTotal: "மொத்த வருவாய்:",
+        payoutBtn: "அடுத்த ஆர்டருக்கு தயாராகுங்கள்",
+        cooking: { h: "உணவகத்தில் உள்ளது • காத்திருக்கவும்", sub: "டொமினோஸ் பீஸ்ஸா தயாராகிறது" },
+        pickedUp: { h: "இன்னும் 200 மீட்டரில் வலதுபுறம் திரும்பவும்", sub: "அண்ணா சாலை • இலக்கு: 4வது தளம்" },
+        transit: { h: "நேராக 1.2 கி.மீ செல்லவும்", sub: "கேட் நோக்கி பயணிக்கவும்" },
+        doorstep: { h: "இலக்கை அடைந்துவிட்டீர்கள்", sub: "உணவை வாடிக்கையாளரிடம் ஒப்படைக்கவும்" },
+        delivered: { h: "டெலிவரி முடிந்தது • வருவாய்: ₹78", sub: "வாலட்டில் தொகை வரவு வைக்கப்பட்டது" },
+        delay: "போக்குவரத்து நெரிசல் (+10 நிமிடம் தாமதம்)",
+        photoTitle: "கட்டிட புகைப்படம் & வழிக்குறிப்பு",
+        photoDesc: "<b>கிரீன்வுட் ஹைட்ஸ் (டவர் B)</b><br>நீல நிற கேட் • லிஃப்ட் மூலம் 4வது தளம், பிளாட் 402 செல்லவும்.<br><span style='color:#38BDF8; font-weight:700;'>உறுதிப்படுத்தப்பட்ட புகைப்படம் இணைக்கப்பட்டுள்ளது</span>",
+        noteTitle: "வாடிக்கையாளர் குறிப்பு",
+        alerts: {
+          normal: { note: '"காலிங் பெல்லை இருமுறை அடிக்கவும். வாசலில் வைக்கவும்."', caution: null },
+          dog: { note: '"வீட்டில் செல்ல நாய் உள்ளது. தயவுசெய்து கேட் வெளியே நின்று போன் செய்யவும்."', caution: "எச்சரிக்கை: வாசலில் நாய் உள்ளது! கேட்டில் நிற்கவும்." },
+          gate: { note: '"வீட்டில் ஆள் இல்லை. பார்சலை செக்யூரிட்டி மேஜையில் வைக்கவும்."', caution: "தொடர்பற்ற டெலிவரி: செக்யூரிட்டியிடம் ஒப்படைக்கவும்." },
+          quiet: { note: '"வீட்டில் குழந்தை தூங்குகிறது. காலிங் பெல் அடிக்க வேண்டாம்."', caution: "அமைதியான டெலிவரி: பெல் அடிக்க வேண்டாம்." }
+        },
+        recipientNotes: {
+          myself: "",
+          friend: " [நண்பர்களுக்கான பரிசு ஆர்டர் - ராகுல் (+91 98840 XXXXX)]",
+          family: " [குடும்ப ஆர்டர் - அம்மா]",
+          others: " [அலுவலக ஆர்டர் - குழு]"
+        }
+      },
+      hi: {
+        tag: "हिन्दी",
+        terminalHeader: "डिलीवरी टर्मिनल (हिन्दी)",
+        langBarLabel: "भाषा:",
+        pinLabel: "फ्लैट 402 • चौथी मंजिल",
+        btnCall: "कॉल करें",
+        btnNav: "नेविगेशन",
+        payoutTitle: "डिलीवरी पूर्ण!",
+        payoutSub: "कमाई आपके वॉलेट में जोड़ दी गई है",
+        payoutBase: "मूल डिलीवरी शुल्क (Base Pay)",
+        payoutTime: "समय पर डिलीवरी बोनस",
+        payoutTip: "ग्राहक टिप (Tip)",
+        payoutTotal: "कुल कमाई:",
+        payoutBtn: "अगले ऑर्डर के लिए तैयार रहें",
+        cooking: { h: "रेस्टोरेंट पर • भोजन तैयार हो रहा है", sub: "डोमिनोज पिज्जा प्रतीक्षा में" },
+        pickedUp: { h: "200 मीटर में दाएं मुड़ें", sub: "अन्ना सलाई मेन रोड • चौथी मंजिल, फ्लैट 402" },
+        transit: { h: "1.2 किमी सीधे चलें", sub: "गेट की ओर आगे बढ़ें" },
+        doorstep: { h: "आप लोकेशन पर पहुंच गए हैं", sub: "पार्सल ग्राहक को सौंपें" },
+        delivered: { h: "डिलीवरी पूर्ण • कमाई: ₹78", sub: "वॉलेट में राशि जमा की गई" },
+        delay: "ट्रैफिक जाम (+10 मिनट देरी)",
+        photoTitle: "इमारत का फोटो और पता",
+        photoDesc: "<b>ग्रीनवुड हाइट्स (टावर B)</b><br>नीला गेट • लिफ्ट से चौथी मंजिल, फ्लैट 402 जाएं।<br><span style='color:#38BDF8; font-weight:700;'>सत्यापित फोटो संलग्न है</span>",
+        noteTitle: "ग्राहक का विशेष निर्देश",
+        alerts: {
+          normal: { note: '"कृपया दो बार डोरबेल बजाएं। दरवाजे पर रखें।"', caution: null },
+          dog: { note: '"घर के अंदर पालतू कुत्ता है। कृपया गेट के बाहर खड़े होकर फोन करें।"', caution: "सावधानी: गेट पर कुत्ता है! अंदर न जाएं।" },
+          gate: { note: '"घर पर कोई नहीं है। पार्सल सिक्योरिटी गार्ड के पास रख दें।"', caution: "कांटेक्टलेस: सिक्योरिटी डेस्क पर पार्सल रखें।" },
+          quiet: { note: '"घर में बच्चा सो रहा है। कृपया डोरबेल न बजाएं।"', caution: "शांत डिलीवरी: बेल न बजाएं।" }
+        },
+        recipientNotes: {
+          myself: "",
+          friend: " [दोस्तों के लिए उपहार - राहुल (+91 98840 XXXXX)]",
+          family: " [परिवार के लिए भोजन - माँ]",
+          others: " [ऑफिस टीम का ऑर्डर]"
+        }
+      },
+      en: {
+        tag: "English",
+        terminalHeader: "Delivery Terminal (English)",
+        langBarLabel: "Language:",
+        pinLabel: "Flat 402 • 4th Floor",
+        btnCall: "Call Customer",
+        btnNav: "Navigation",
+        payoutTitle: "Delivery Completed!",
+        payoutSub: "Earnings credited to your driver wallet",
+        payoutBase: "Base Delivery Pay",
+        payoutTime: "On-Time Service Bonus",
+        payoutTip: "Customer Tip",
+        payoutTotal: "Total Payout:",
+        payoutBtn: "Ready for Next Order",
+        cooking: { h: "At Restaurant • Awaiting Food", sub: "Dominos Pizza in preparation" },
+        pickedUp: { h: "In 200m, Turn Right onto Main Rd", sub: "Target: 4th Floor, Flat 402" },
+        transit: { h: "Straight for 1.2 km towards Gate", sub: "Follow navigation route to entrance" },
+        doorstep: { h: "Arrived at Destination", sub: "Hand over parcel directly to customer" },
+        delivered: { h: "Delivery Completed • Earned ₹78", sub: "Credited to wallet balance" },
+        delay: "Traffic Congestion Detected (+10m)",
+        photoTitle: "Building Photo & Landmark",
+        photoDesc: "<b>Greenwood Heights (Tower B)</b><br>Blue gate entrance • Take lift to 4th Floor, Flat 402.<br><span style='color:#38BDF8; font-weight:700;'>Verified customer photo attached</span>",
+        noteTitle: "Customer Delivery Note",
+        alerts: {
+          normal: { note: '"Please ring doorbell twice. Building photo attached for entry."', caution: null },
+          dog: { note: '"Pet dog inside premises. Please do not enter yard. Call me from gate."', caution: "CAUTION: Beware of Dogs! Call customer at gate." },
+          gate: { note: '"Not at home right now. Hand over to security desk and mark delivered."', caution: "CONTACTLESS: Leave parcel at security desk." },
+          quiet: { note: '"Baby sleeping. Please do not ring doorbell."', caution: "Silent Drop: Do not ring doorbell." }
+        },
+        recipientNotes: {
+          myself: "",
+          friend: " [Gift for Friends - Rahul (+91 98840 XXXXX)]",
+          family: " [Order for Family - Mom]",
+          others: " [Office Team Order]"
+        }
+      }
+    };
+
+    const CATALOG = {
+      nithish: {
+        podcasts: [
+          { id: "np1", title: "Generative AI Landscape 2026", dur: 12, provider: "Spotify Tech", tag: "Tech Podcast" },
+          { id: "np2", title: "Building The Waiting Economy", dur: 8, provider: "Founders Hub", tag: "Strategy" },
+          { id: "np3", title: "4-Minute Silicon Valley Brief", dur: 4, provider: "Bloomberg Lite", tag: "Fast Brief" }
+        ],
+        music: [
+          { id: "nm1", title: "Lo-Fi Beats for Deep Focus", dur: 14, provider: "SoundCloud", tag: "Lo-Fi Beats" },
+          { id: "nm2", title: "Chill Ambient Coding Session", dur: 10, provider: "Calm Waves", tag: "Ambient" }
+        ],
+        news: [
+          { id: "nn1", title: "Global Stock Markets Surge Today", dur: 5, provider: "Reuters Lite", tag: "Market Brief" }
+        ],
+        games: [
+          { id: "ng1", title: "Speed Trivia: Tech Unicorns", dur: 5, provider: "Habit Games", tag: "Mini-Game" }
+        ]
+      },
+      regional: {
+        podcasts: [
+          { id: "rp1", title: "Cinema Express: Kollywood Buzz", dur: 12, provider: "Gaana Excl", tag: "Cinema Tamil" },
+          { id: "rp2", title: "Madras Comedy Club Roast", dur: 8, provider: "SouthPod", tag: "Jokes Tamil" }
+        ],
+        music: [
+          { id: "rm1", title: "Anirudh 2026 Fresh Melodies", dur: 14, provider: "JioSaavn", tag: "Tamil Hits" },
+          { id: "rm2", title: "Acoustic Sunset Melody Mix", dur: 10, provider: "Spotify India", tag: "Melody" }
+        ],
+        news: [
+          { id: "rn1", title: "Chennai City Express News", dur: 5, provider: "Vikatan Lite", tag: "Local News" }
+        ],
+        games: [
+          { id: "rg1", title: "Kollywood Star Quiz Challenge", dur: 5, provider: "CineQuiz", tag: "Trivia" }
+        ]
+      }
+    };
+
+    const SCOOTER_SVG = `
+      <div style="transform: scale(1.15); filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); cursor: pointer;">
+        <svg width="42" height="42" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="46" fill="#0E7C7B" stroke="#FFF" stroke-width="4"/>
+          <circle cx="30" cy="68" r="10" fill="#1F2937" stroke="#FFF" stroke-width="3"/>
+          <circle cx="70" cy="68" r="10" fill="#1F2937" stroke="#FFF" stroke-width="3"/>
+          <path d="M30 68 L48 68 L58 48 L40 48 Z" fill="#FF5200"/>
+          <circle cx="48" cy="30" r="8" fill="#FDBA74"/>
+          <path d="M42 38 L54 38 L50 52 L38 52 Z" fill="#1E293B"/>
+        </svg>
+      </div>
+    `;
+
+    let custMap, driverMap, custRiderMarker, driverRiderMarker, custHomeMarker, driverHomeMarker;
+    const LOC_HOTEL = [12.9716, 77.5946];
+    const LOC_MIDPOINT = [12.9780, 77.5998];
+    const LOC_HOME = [12.9850, 77.6050];
+
+    function getCustPinHtml(mode) {
+      let lbl = "📍 Home";
+      if (mode === 'friend') lbl = "🎁 For Friends (Rahul)";
+      if (mode === 'family') lbl = "❤️ For Family (Mom)";
+      if (mode === 'others') lbl = "🏢 Others (Office)";
+      return `<div style="display:flex; flex-direction:column; align-items:center; transform:translate(-50%,-100%);"><div style="background:#0B132B; color:#fff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px;">📍</div><div style="background:#0E7C7B; color:#fff; font-size:9px; font-weight:800; padding:2px 6px; border-radius:6px; white-space:nowrap; margin-top:2px;">${lbl}</div></div>`;
+    }
+
+    function getDriverPinHtml(label) {
+      return `<div style="display:flex; flex-direction:column; align-items:center; transform:translate(-50%,-100%);"><div style="background:#0284C7; color:#fff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:14px;">🎯</div><div style="background:#0284C7; color:#fff; font-size:9px; font-weight:800; padding:2px 6px; border-radius:6px; white-space:nowrap; margin-top:2px;">${label}</div></div>`;
+    }
+
+    function initMaps() {
+      custMap = L.map('customerMap', { zoomControl: false, attributionControl: false }).setView(LOC_HOTEL, 14);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(custMap);
+      L.marker(LOC_HOTEL, { icon: L.divIcon({ className: 'p', html: '<div style="background:#FF5200; color:#fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:12px;">🍕</div>', iconSize: [26,26] }) }).addTo(custMap);
+      custHomeMarker = L.marker(LOC_HOME, { icon: L.divIcon({ className: 'p', html: getCustPinHtml('myself'), iconSize: [0,0] }) }).addTo(custMap);
+      L.polyline([LOC_HOTEL, LOC_MIDPOINT, LOC_HOME], { color: '#0E7C7B', weight: 4, dashArray: '5, 8' }).addTo(custMap);
+      custRiderMarker = L.marker(LOC_HOTEL, { icon: L.divIcon({ className: 's', html: SCOOTER_SVG, iconSize: [42,42], iconAnchor: [21,21] }) }).addTo(custMap);
+      custRiderMarker.on('click', () => { document.getElementById('riderSheetModal').classList.add('active'); });
+
+      driverMap = L.map('driverMap', { zoomControl: false, attributionControl: false }).setView(LOC_HOTEL, 14);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(driverMap);
+      L.marker(LOC_HOTEL, { icon: L.divIcon({ className: 'p', html: '<div style="background:#FF5200; color:#fff; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:11px;">🍕</div>', iconSize: [24,24] }) }).addTo(driverMap);
+      driverHomeMarker = L.marker(LOC_HOME, { icon: L.divIcon({ className: 'p', html: getDriverPinHtml(DRIVER_I18N['ta'].pinLabel), iconSize: [0,0] }) }).addTo(driverMap);
+      L.polyline([LOC_HOTEL, LOC_MIDPOINT, LOC_HOME], { color: '#0284C7', weight: 4 }).addTo(driverMap);
+      driverRiderMarker = L.marker(LOC_HOTEL, { icon: L.divIcon({ className: 's', html: SCOOTER_SVG, iconSize: [42,42], iconAnchor: [21,21] }) }).addTo(driverMap);
+    }
+
+    function closeRiderModal() { document.getElementById('riderSheetModal').classList.remove('active'); }
+
+    function logTelemetry(m) {
+      const b = document.getElementById('telemetryBox');
+      b.innerHTML += `<br>${m}`;
+      b.scrollTop = b.scrollHeight;
+    }
+
+    function updateDriverTerminal() {
+      const loc = DRIVER_I18N[driverLang];
+      ['pillLangTa', 'pillLangHi', 'pillLangEn'].forEach(id => document.getElementById(id).classList.remove('active'));
+      ['btnLangTa', 'btnLangHi', 'btnLangEn'].forEach(id => document.getElementById(id).classList.remove('driver-active'));
+
+      if (driverLang === 'ta') { document.getElementById('pillLangTa').classList.add('active'); document.getElementById('btnLangTa').classList.add('driver-active'); }
+      else if (driverLang === 'hi') { document.getElementById('pillLangHi').classList.add('active'); document.getElementById('btnLangHi').classList.add('driver-active'); }
+      else if (driverLang === 'en') { document.getElementById('pillLangEn').classList.add('active'); document.getElementById('btnLangEn').classList.add('driver-active'); }
+
+      document.getElementById('driverTerminalHeader').innerText = loc.terminalHeader;
+      document.getElementById('driverLangBarLabel').innerText = loc.langBarLabel;
+      document.getElementById('btnTextCall').innerText = loc.btnCall;
+      document.getElementById('btnTextNav').innerText = loc.btnNav;
+      document.getElementById('driverPhotoTitle').innerText = loc.photoTitle;
+      document.getElementById('driverBuildingDesc').innerHTML = loc.photoDesc;
+      document.getElementById('driverNoteTitle').innerText = loc.noteTitle;
+
+      const activeAlertData = loc.alerts[dropMode];
+      const recNote = loc.recipientNotes[recipientType] || "";
+      document.getElementById('driverCustomerNote').innerText = activeAlertData.note + recNote;
+
+      const driverAlert = document.getElementById('driverAlertBanner');
+      if (activeAlertData.caution) {
+        driverAlert.style.display = 'flex';
+        driverAlert.className = dropMode === 'gate' ? 'driver-caution-pill gate' : 'driver-caution-pill';
+        document.getElementById('driverAlertText').innerText = activeAlertData.caution;
+      } else {
+        driverAlert.style.display = 'none';
+      }
+
+      document.getElementById('payoutModalTitle').innerText = loc.payoutTitle;
+      document.getElementById('payoutModalSub').innerText = loc.payoutSub;
+      document.getElementById('payoutLblBase').innerText = loc.payoutBase;
+      document.getElementById('payoutLblTime').innerText = loc.payoutTime;
+      document.getElementById('payoutLblTip').innerText = loc.payoutTip;
+      document.getElementById('payoutLblTotal').innerText = loc.payoutTotal;
+      document.getElementById('payoutBtnDone').innerText = loc.payoutBtn;
+
+      const navKey = deliveryState === 'hotel' ? 'cooking' : (deliveryState === 'pickup' ? 'pickedUp' : (deliveryState === 'transit' ? 'transit' : (deliveryState === 'doorstep' ? 'doorstep' : 'delivered')));
+      document.getElementById('driverNavHeading').innerText = isDelayActive ? loc.delay : loc[navKey].h;
+      document.getElementById('driverNavSub').innerText = loc[navKey].sub;
+
+      if (driverHomeMarker) driverHomeMarker.setIcon(L.divIcon({ className: 'p', html: getDriverPinHtml(loc.pinLabel), iconSize: [0,0] }));
+    }
+
+    function setDriverLanguage(lang) {
+      driverLang = lang;
+      updateDriverTerminal();
+      logTelemetry(`[DRIVER_LOCALE] Language updated to <b>${DRIVER_I18N[lang].tag}</b>.`);
+      lucide.createIcons();
+    }
+
+    function setRecipientMode(mode) {
+      recipientType = mode;
+      ['btnRecMyself', 'btnRecFriend', 'btnRecFamily', 'btnRecOthers'].forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById(`btnRec${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add('active');
+      if (custHomeMarker) custHomeMarker.setIcon(L.divIcon({ className: 'p', html: getCustPinHtml(mode), iconSize: [0,0] }));
+      updateDriverTerminal();
+      logTelemetry(`[RECIPIENT] Ingested recipient: <b>${mode.toUpperCase()}</b>.`);
+    }
+
+    function setDropContext(mode) {
+      dropMode = mode;
+      ['btnInstNormal', 'btnInstDog', 'btnInstGate', 'btnInstQuiet'].forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById(`btnInst${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add('active');
+
+      const custHudTitle = document.getElementById('custHudTitle');
+      const custHudSub = document.getElementById('custHudSub');
+
+      if (mode === 'dog') {
+        custHudTitle.innerText = "Rider at Main Gate (Pet Alert)";
+        custHudSub.innerText = "Muthu is waiting outside the gate due to pet caution — please collect your meal!";
+      } else if (mode === 'gate') {
+        custHudTitle.innerText = "Order Placed at Security Gate!";
+        custHudSub.innerText = "Package dropped safely at entrance gate as requested. No knock triggered.";
+      } else if (mode === 'quiet') {
+        custHudTitle.innerText = "Order Dropped at Doorstep!";
+        custHudSub.innerText = "Food placed quietly at your doorstep. Doorbell was not rung as requested.";
+      } else {
+        custHudTitle.innerText = "Rider Knocking at Door!";
+        custHudSub.innerText = "Muthu has reached and is knocking at your door!";
+      }
+
+      updateDriverTerminal();
+      logTelemetry(`[SYNC] Drop context set to: ${mode.toUpperCase()}`);
+    }
+
+    function renderCarousel() {
+      const wrap = document.getElementById('contentCarousel');
+      wrap.innerHTML = '';
+      const items = (CATALOG[currentProfile] && CATALOG[currentProfile][selectedCat]) || [];
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'carousel-card';
+        card.innerHTML = `
+          <div>
+            <div style="font-size:0.62rem; font-weight:800; color:var(--teal);">${item.tag}</div>
+            <div style="font-size:0.82rem; font-weight:800; color:var(--navy); margin-top:3px; line-height:1.25;">${item.title}</div>
+            <div style="font-size:0.65rem; color:#718096; margin-top:2px;">${item.provider}</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.68rem; font-weight:700; color:var(--teal); margin-top:8px; border-top:1px solid #EDF2F7; padding-top:6px;">
+            <span>⏱ ${item.dur}m</span><span onclick="startSpecificTrack('${item.title}')">Play →</span>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function switchCategory(cat, btn) {
+      selectedCat = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCarousel();
+    }
+
+    function startSpecificTrack(title) {
+      document.getElementById('custTrackTitle').innerText = title;
+      document.getElementById('customerAudioDock').classList.add('active');
+      logTelemetry(`[CUSTOMER_AUDIO] Playing track: <b>${title}</b>.`);
+    }
+
+    function autoPlaySmartQueue() {
+      const track = CATALOG[currentProfile][selectedCat][0] || { title: "Daily Focus Brief" };
+      startSpecificTrack(track.title);
+      logTelemetry(`[CUSTOMER_AUDIO] 1-Tap Instant Play: <b>${track.title}</b>.`);
+    }
+
+    function toggleFeedDrawer() {
+      isDrawerOpen = !isDrawerOpen;
+      document.getElementById('feedDrawer').classList.toggle('open', isDrawerOpen);
+      document.getElementById('btnExploreMoodsGlow').classList.toggle('active', isDrawerOpen);
+      document.getElementById('browseBtnLabel').innerText = isDrawerOpen ? "Hide Moods" : "Explore Moods";
+      if (isDrawerOpen) renderCarousel();
+      lucide.createIcons();
+    }
+
+    function setProfile(p) {
+      currentProfile = p;
+      document.getElementById('btnProfNithish').classList.toggle('active', p === 'nithish');
+      document.getElementById('btnProfRegional').classList.toggle('active', p === 'regional');
+      renderCarousel();
+      logTelemetry(`[PROFILE] Customer media profile: <b>${p.toUpperCase()}</b>.`);
+    }
+
+    function setLifecycle(state) {
+      deliveryState = state;
+      ['btnHotel', 'btnPickup', 'btnTransit', 'btnDoor', 'btnDeliver'].forEach(id => document.getElementById(id).classList.remove('active'));
+      
+      if (state !== 'doorstep') document.getElementById('customerDoorstepHud').classList.remove('active');
+
+      if (state === 'hotel') {
+        document.getElementById('btnHotel').classList.add('active');
+        custRiderMarker.setLatLng(LOC_HOTEL);
+        driverRiderMarker.setLatLng(LOC_HOTEL);
+        currentEtaMinutes = 28;
+        document.getElementById('custOrderHeading').innerText = "Food Cooking • Dominos";
+      } else if (state === 'pickup') {
+        document.getElementById('btnPickup').classList.add('active');
+        custRiderMarker.setLatLng(LOC_HOTEL);
+        driverRiderMarker.setLatLng(LOC_HOTEL);
+        currentEtaMinutes = 24;
+        document.getElementById('custOrderHeading').innerText = "Order Picked Up • Dominos";
+      } else if (state === 'transit') {
+        document.getElementById('btnTransit').classList.add('active');
+        custRiderMarker.setLatLng(LOC_MIDPOINT);
+        driverRiderMarker.setLatLng(LOC_MIDPOINT);
+        currentEtaMinutes = 12;
+        document.getElementById('custOrderHeading').innerText = "On the way • Dominos";
+      } else if (state === 'doorstep') {
+        document.getElementById('btnDoor').classList.add('active');
+        custRiderMarker.setLatLng(LOC_HOME);
+        driverRiderMarker.setLatLng(LOC_HOME);
+        currentEtaMinutes = 1;
+        document.getElementById('custOrderHeading').innerText = "Rider at Doorstep!";
+        document.getElementById('customerDoorstepHud').classList.add('active');
+      } else if (state === 'delivered') {
+        document.getElementById('btnDeliver').classList.add('active');
+        document.getElementById('customerAudioDock').classList.remove('active');
+        document.getElementById('customerDoorstepHud').classList.remove('active');
+        document.getElementById('custPwsModal').classList.add('active');
+        document.getElementById('driverPayoutModal').classList.add('active');
+        custRiderMarker.setLatLng(LOC_HOME);
+        driverRiderMarker.setLatLng(LOC_HOME);
+      }
+
+      document.getElementById('custEtaDisplay').innerText = `${currentEtaMinutes} MIN`;
+      document.getElementById('custHeroPill').innerText = `${currentEtaMinutes} MINS OF YOU`;
+      updateDriverTerminal();
+      logTelemetry(`[LIFECYCLE] Status: ${state.toUpperCase()}`);
+      lucide.createIcons();
+    }
+
+    function triggerDynamicDelay() {
+      if (deliveryState === 'doorstep' || deliveryState === 'delivered') return;
+      isDelayActive = true;
+      currentEtaMinutes += 10;
+      document.getElementById('custEtaDisplay').innerText = `${currentEtaMinutes} MIN`;
+      document.getElementById('custDelayNotice').classList.add('active');
+      document.getElementById('trafficDotCust').classList.add('red');
+      document.getElementById('custMapTelem').innerText = "31°C • Traffic Delay (+10m)";
+      updateDriverTerminal();
+      logTelemetry("[DELAY] ⚠️ Traffic Delay (+10m): Media auto-extended.");
+    }
+
+    function submitPwsFeedback(val) {
+      document.getElementById('custPwsModal').classList.remove('active');
+      logTelemetry(`[ANALYTICS] PWS Score recorded: <b>${val}</b>.`);
+      alert(`Feedback recorded: "${val}" logged to ME-TIME Analytics!`);
+    }
+
+    window.onload = () => {
+      initMaps();
+      renderCarousel();
+      updateDriverTerminal();
+      lucide.createIcons();
+
+      SwaggerUIBundle({
+        spec: SWAGGER_SPEC,
+        dom_id: '#swagger-ui-container',
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+        layout: "BaseLayout"
+      });
+    };
+  </script>
+</body>
+</html>
