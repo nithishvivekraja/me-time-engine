@@ -1,63 +1,73 @@
--- =========================================================================
+-- ============================================================================
 -- ME-TIME™ Relational Database Schema (PostgreSQL DDL)
--- Version: 1.1-Enterprise
--- Target: Shadow Order Lifecycle, Content Caching & PWS Telemetry
--- =========================================================================
+-- Version: 2.0 (Multi-Tenant, Dynamic Delay & Progressive Feedback Supported)
+-- ============================================================================
 
+-- 1. Tenants Table (Multi-Tenant Isolation)
 CREATE TABLE IF NOT EXISTS tenants (
     tenant_id VARCHAR(32) PRIMARY KEY,
-    tenant_name VARCHAR(120) NOT NULL,
-    vertical VARCHAR(40) NOT NULL,
-    status VARCHAR(20) DEFAULT 'active',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    tenant_name VARCHAR(100) NOT NULL,
+    vertical VARCHAR(50) NOT NULL, -- 'food_delivery', 'ride_hailing', 'quick_commerce'
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 2. Tenant Configuration Table
+CREATE TABLE IF NOT EXISTS tenant_config (
+    config_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    tenant_id VARCHAR(32) NOT NULL UNIQUE REFERENCES tenants(tenant_id) ON DELETE CASCADE,
+    eta_slippage_threshold_minutes INT NOT NULL DEFAULT 10,
+    proximity_threshold_meters INT NOT NULL DEFAULT 50,
+    primary_locales VARCHAR(50)[] NOT NULL DEFAULT '{"en","ta","hi"}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Shadow Orders Table
 CREATE TABLE IF NOT EXISTS orders (
-    order_id VARCHAR(64) PRIMARY KEY,
-    tenant_id VARCHAR(32) REFERENCES tenants(tenant_id),
-    customer_hash VARCHAR(128) NOT NULL,
+    order_id VARCHAR(32) PRIMARY KEY,
+    tenant_id VARCHAR(32) NOT NULL REFERENCES tenants(tenant_id),
+    original_eta_minutes INT NOT NULL,
     current_eta_minutes INT NOT NULL,
-    status VARCHAR(30) NOT NULL, -- 'cooking', 'picked_up', 'in_transit', 'doorstep', 'delivered'
-    recipient_type VARCHAR(20) DEFAULT 'myself', -- 'myself', 'friend', 'family', 'others'
-    drop_mode VARCHAR(20) DEFAULT 'normal', -- 'normal', 'dog', 'gate', 'quiet'
-    driver_lang VARCHAR(10) DEFAULT 'ta', -- 'ta', 'hi', 'en'
-    driver_theme_preference VARCHAR(20) DEFAULT 'auto', -- 'auto', 'day', 'night'
-    is_delayed BOOLEAN DEFAULT FALSE,
-    delay_minutes INT DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    order_status VARCHAR(20) NOT NULL DEFAULT 'cooking', -- 'cooking', 'in_transit', 'doorstep', 'delivered'
+    drop_instruction_flag VARCHAR(20) NOT NULL DEFAULT 'normal', -- 'normal', 'dog', 'gate', 'quiet'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 4. Delay Events Audit Table
 CREATE TABLE IF NOT EXISTS delay_events (
-    event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id VARCHAR(64) REFERENCES orders(order_id),
-    added_delay_minutes INT NOT NULL,
-    reason_code VARCHAR(40) NOT NULL, -- 'traffic_congestion', 'kitchen_backlog', 'weather'
-    auto_appended_track_id VARCHAR(64),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    event_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    order_id VARCHAR(32) NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    slippage_minutes INT NOT NULL,
+    reason_text TEXT NOT NULL,
+    companion_track_id VARCHAR(32),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 5. Content Catalog Table
 CREATE TABLE IF NOT EXISTS content_items (
-    content_id VARCHAR(64) PRIMARY KEY,
+    content_id VARCHAR(32) PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    provider VARCHAR(50) NOT NULL,
     category VARCHAR(30) NOT NULL, -- 'podcasts', 'music', 'news', 'games'
-    title VARCHAR(255) NOT NULL,
-    provider VARCHAR(80) NOT NULL,
-    duration_minutes INT NOT NULL,
+    duration_seconds INT NOT NULL,
     stream_url TEXT NOT NULL,
-    tags TEXT[],
-    is_queue_tail BOOLEAN DEFAULT FALSE, -- Identifies ambient transition tracks
-    precache_eligible BOOLEAN DEFAULT TRUE, -- Flag for client IndexedDB caching
-    locale VARCHAR(10) DEFAULT 'en',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    is_safe_default BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 6. PWS Feedback & Qualitative Comment Table
 CREATE TABLE IF NOT EXISTS feedback_responses (
-    feedback_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id VARCHAR(64) UNIQUE REFERENCES orders(order_id),
-    pws_rating VARCHAR(30) NOT NULL, -- 'short_fine', 'long_frustrating'
-    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    feedback_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    order_id VARCHAR(32) NOT NULL UNIQUE REFERENCES orders(order_id) ON DELETE CASCADE,
+    pws_rating VARCHAR(20) NOT NULL, -- 'short_fine', 'long_frustrating', 'no_response'
+    customer_comment TEXT,            -- Optional qualitative verbatim from progressive disclosure
+    response_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_orders_tenant ON orders(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_content_category ON content_items(category, duration_minutes);
-CREATE INDEX IF NOT EXISTS idx_feedback_order ON feedback_responses(order_id);
+-- ----------------------------------------------------------------------------
+-- Indexes for Performance SLAs (≤300ms p95 Read Budget)
+-- ----------------------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS idx_orders_tenant_status ON orders(tenant_id, order_status);
+CREATE INDEX IF NOT EXISTS idx_content_category_dur ON content_items(category, duration_seconds);
+CREATE INDEX IF NOT EXISTS idx_feedback_rating ON feedback_responses(pws_rating);

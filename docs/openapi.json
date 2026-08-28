@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ME-TIME™ Experience Engine Multi-Tenant API",
-    "version": "1.1.0",
-    "description": "Stateless waiting economy SDK gateway powering dynamic time-budgeted content, delay mitigation, and multilingual last-mile handoffs."
+    "version": "1.2.0",
+    "description": "Stateless waiting economy SDK gateway powering dynamic time-budgeted content, delay mitigation, progressive feedback capture, and multilingual last-mile handoffs."
   },
   "servers": [
     {
@@ -15,7 +15,8 @@
     "/webhooks/order-events": {
       "post": {
         "summary": "Ingest Host Order Lifecycle Event",
-        "description": "Consumes order status transitions and recalculates time budgets.",
+        "description": "Consumes order status transitions and recalculates live time budgets.",
+        "operationId": "ingestOrderEvent",
         "requestBody": {
           "required": true,
           "content": {
@@ -29,6 +30,12 @@
         "responses": {
           "202": {
             "description": "Event accepted and pipeline triggered."
+          },
+          "400": {
+            "description": "Malformed event payload."
+          },
+          "403": {
+            "description": "Unauthorized tenant."
           }
         }
       }
@@ -37,6 +44,7 @@
       "get": {
         "summary": "Fetch Composite Waiting Experience Payload",
         "description": "Returns calculated time budget, pre-cached content candidates, and active driver terminal instructions in <300ms.",
+        "operationId": "getWaitExperience",
         "parameters": [
           {
             "name": "orderId",
@@ -57,6 +65,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Order not found."
           }
         }
       }
@@ -64,7 +75,8 @@
     "/orders/{orderId}/feedback": {
       "post": {
         "summary": "Submit 1-Tap Perceived Wait Satisfaction (PWS)",
-        "description": "Records idempotent post-delivery wait sentiment.",
+        "description": "Records idempotent post-delivery wait sentiment with optional progressive disclosure qualitative comment.",
+        "operationId": "submitFeedback",
         "parameters": [
           {
             "name": "orderId",
@@ -87,7 +99,10 @@
         },
         "responses": {
           "201": {
-            "description": "Feedback recorded."
+            "description": "Feedback recorded successfully."
+          },
+          "409": {
+            "description": "Feedback already recorded for this order (idempotent write protection)."
           }
         }
       }
@@ -97,21 +112,32 @@
     "schemas": {
       "OrderEventPayload": {
         "type": "object",
-        "required": ["order_id", "event_type", "eta_minutes"],
+        "required": ["tenant_id", "order_id", "event_type", "eta_minutes"],
         "properties": {
+          "tenant_id": { "type": "string", "example": "tn_swiggy_in" },
           "order_id": { "type": "string", "example": "ORD_99182" },
           "event_type": { "type": "string", "enum": ["order_created", "eta_updated", "doorstep_breach", "delivered"] },
           "eta_minutes": { "type": "integer", "example": 24 },
           "recipient_type": { "type": "string", "enum": ["myself", "friend", "family", "others"], "default": "myself" },
-          "drop_mode": { "type": "string", "enum": ["normal", "dog", "gate", "quiet"], "default": "normal" }
+          "drop_mode": { "type": "string", "enum": ["normal", "dog", "gate", "quiet"], "default": "normal" },
+          "timestamp": { "type": "string", "format": "date-time" }
         }
       },
       "ExperienceResponse": {
         "type": "object",
         "properties": {
-          "order_id": { "type": "string" },
+          "tenant_id": { "type": "string", "example": "tn_swiggy_in" },
+          "order_id": { "type": "string", "example": "ORD_99182" },
           "time_budget_minutes": { "type": "integer", "example": 24 },
           "is_delayed": { "type": "boolean", "example": false },
+          "delay_metadata": {
+            "type": "object",
+            "properties": {
+              "delay_minutes": { "type": "integer", "example": 10 },
+              "delay_reason": { "type": "string", "example": "Traffic Congestion on Main Arterial" },
+              "companion_track_auto_queued": { "type": "boolean", "example": true }
+            }
+          },
           "queue_tail_active": { "type": "boolean", "example": false },
           "recommended_items": {
             "type": "array",
@@ -122,8 +148,8 @@
             "properties": {
               "preferred_lang": { "type": "string", "example": "ta" },
               "theme_mode": { "type": "string", "enum": ["auto", "day", "night"], "default": "auto" },
-              "translated_drop_note": { "type": "string" },
-              "caution_badge": { "type": "string", "nullable": true }
+              "translated_drop_note": { "type": "string", "example": "காலிங் பெல்லை இருமுறை அடிக்கவும். வாசலில் வைக்கவும்." },
+              "caution_badge": { "type": "string", "nullable": true, "example": "எச்சரிக்கை: வாசலில் நாய் உள்ளது!" }
             }
           }
         }
@@ -131,20 +157,29 @@
       "ContentItem": {
         "type": "object",
         "properties": {
-          "content_id": { "type": "string" },
-          "title": { "type": "string" },
-          "provider": { "type": "string" },
-          "category": { "type": "string" },
-          "duration_minutes": { "type": "integer" },
-          "is_queue_tail": { "type": "boolean" },
-          "precache_eligible": { "type": "boolean" }
+          "content_id": { "type": "string", "example": "np1" },
+          "title": { "type": "string", "example": "Generative AI Landscape 2026" },
+          "provider": { "type": "string", "example": "Spotify Tech" },
+          "category": { "type": "string", "enum": ["podcasts", "music", "news", "games"], "example": "podcasts" },
+          "duration_minutes": { "type": "integer", "example": 12 },
+          "is_queue_tail": { "type": "boolean", "example": false },
+          "precache_eligible": { "type": "boolean", "example": true }
         }
       },
       "FeedbackSubmission": {
         "type": "object",
         "required": ["pws_rating"],
         "properties": {
-          "pws_rating": { "type": "string", "enum": ["short_fine", "long_frustrating"] }
+          "pws_rating": {
+            "type": "string",
+            "enum": ["short_fine", "long_frustrating", "no_response"]
+          },
+          "customer_comment": {
+            "type": "string",
+            "description": "Optional open-text feedback collected via progressive disclosure when pws_rating is negative.",
+            "maxLength": 500,
+            "example": "ETA changed twice while cooking; audio queue ended 5 mins before driver arrived."
+          }
         }
       }
     }
