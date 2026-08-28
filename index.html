@@ -326,6 +326,7 @@
       <button class="nav-tab-btn" onclick="switchGlobalTab('guide', this)"><i data-lucide="compass"></i> User Guide</button>
       <button class="nav-tab-btn" onclick="switchGlobalTab('swagger', this)"><i data-lucide="terminal"></i> Swagger / API</button>
       <button class="nav-tab-btn" onclick="switchGlobalTab('schema', this)"><i data-lucide="database"></i> Schema DDL</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('deck', this)"><i data-lucide="presentation"></i> Pitch Deck</button>
     </div>
 
     <div class="nav-actions">
@@ -664,6 +665,23 @@
     </div>
   </div>
 
+  <!-- TAB 7: STRATEGY PITCH DECK -->
+  <div class="tab-view-container" id="tab-deck">
+    <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:18px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h2 style="color:#38BDF8; font-size:1.2rem; margin-bottom:4px;">ME-TIME™ Executive Strategy Deck</h2>
+        <p style="color:#94A3B8; font-size:0.82rem;">Complete 5-slide thesis on transforming delivery wait times into personal leisure.</p>
+      </div>
+      <a href="slides/Me-Time_Strategy_Deck.pdf" download style="background:var(--teal); color:#FFF; text-decoration:none; padding:8px 16px; border-radius:10px; font-size:0.78rem; font-weight:800; display:flex; align-items:center; gap:6px;">
+        <i data-lucide="download" style="width:14px;"></i> Download PDF
+      </a>
+    </div>
+
+    <div style="width:100%; height:750px; background:#0B132B; border:1px solid var(--border); border-radius:16px; overflow:hidden;">
+      <iframe src="slides/Me-Time_Strategy_Deck.pdf" width="100%" height="100%" style="border:none;"></iframe>
+    </div>
+  </div>
+
   <script>
     let docsCache = { case_study: null, prd: null, guide: null, schema: null };
 
@@ -715,6 +733,8 @@
           if (custMap) custMap.invalidateSize();
           if (driverMap) driverMap.invalidateSize();
         }, 150);
+      } else if (tabKey === 'deck') {
+        lucide.createIcons();
       } else {
         loadDynamicDocs(tabKey);
       }
