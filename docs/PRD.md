@@ -137,10 +137,6 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 | **Gated Community Access**<br>*(Regional Driver)* | Driver unable to read English checkout notes. | Halts at main gate and places multiple phone calls. | **User:** Spammed with calls.<br>**Driver:** Lost delivery bonus.<br>**Restaurant:** Cold food complaint. | **Localized Landmark Card:** Renders gate notes and entrance photos directly in Tamil / Hindi. |
 | **Post-Delivery Survey**<br>*(All Orders)* | Order marked completed. | Generic 5-star survey blends food, speed, and driver conduct. | **User:** No wait-time outlet.<br>**Driver:** Blamed for delays.<br>**Restaurant:** Unfairly down-ranked. | **1-Tap PWS Feedback:** Captures Perceived Wait Satisfaction score (`short_fine` vs. `long_frustrating`). |
 
-* **Tracking Fatigue & Anxiety:** Over 81% of food delivery users check their active order tracking screen 2 to 5+ times per order. This behavior is driven by uncertainty over erratic ETA fluctuations rather than the absolute duration.
-* **Unproductive Multitasking:** While 94% of users multitask while waiting for food, 58% fall into shallow social media scrolling, and only 3% engage in intentional rest or productive focus.
-* **Final-Mile Handoff Friction:** Surprise doorbells disrupting work meetings, barking pets, and language barriers between customers and delivery partners cause failed drops and unnecessary phone calls.
-
 ### 1.3 Goals & Success Metrics
 | Metric Category | Target KPI | Baseline | Measurement Source |
 | :--- | :--- | :--- | :--- |
