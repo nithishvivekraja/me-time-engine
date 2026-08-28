@@ -496,16 +496,24 @@
           </div>
 
           <div class="pws-overlay" id="custPwsModal">
-            <div class="pws-box">
-              <div style="font-size:24px; color:#059669; margin-bottom:4px;">✅</div>
-              <div style="font-size:1.1rem; font-weight:800; margin-bottom:4px;">Order Delivered!</div>
-              <div style="font-size:0.75rem; color:#718096; margin-bottom:14px;">How was your Me-Time waiting experience?</div>
-              <button class="pws-btn" onclick="submitPwsFeedback('short_fine')">⚡ Felt short &amp; entertaining</button>
-              <button class="pws-btn" onclick="submitPwsFeedback('long_frustrating')">⏳ Felt long &amp; frustrating</button>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="pws-box" id="pwsBoxInitial">
+    <div style="font-size:24px; color:#059669; margin-bottom:4px;">✅</div>
+    <div style="font-size:1.1rem; font-weight:800; margin-bottom:4px;">Order Delivered!</div>
+    <div style="font-size:0.75rem; color:#718096; margin-bottom:14px;">How was your Me-Time waiting experience?</div>
+    <button class="pws-btn" onclick="submitPwsFeedback('short_fine')">⚡ Felt short &amp; entertaining</button>
+    <button class="pws-btn" onclick="showFeedbackCommentBox()">⏳ Felt long &amp; frustrating</button>
+  </div>
+  
+  <!-- Progressive Disclosure Comment Box (Hidden by Default) -->
+  <div class="pws-box" id="pwsBoxComment" style="display:none;">
+    <div style="font-size:1rem; font-weight:800; margin-bottom:8px;">What went wrong?</div>
+    <textarea id="pwsCommentText" placeholder="Tell us about your wait (Optional)" style="width:100%; height:60px; border-radius:8px; border:1px solid #EDF2F7; padding:8px; font-size:0.75rem; font-family:inherit; resize:none; margin-bottom:10px;"></textarea>
+    <div style="display:flex; gap:8px;">
+      <button class="pws-btn" style="flex:1; background:#0E7C7B; color:#FFF; border:none;" onclick="submitPwsFeedback('long_frustrating', true)">Submit</button>
+      <button class="pws-btn" style="flex:1; background:#F1F5F9; border:none;" onclick="submitPwsFeedback('long_frustrating', false)">Skip</button>
+    </div>
+  </div>
+</div>
 
       <!-- DRIVER DEVICE -->
       <div class="device-column">
@@ -1154,11 +1162,33 @@
       logTelemetry("[DELAY] ⚠️ Traffic Delay (+10m): Media auto-extended.");
     }
 
-    function submitPwsFeedback(val) {
-      document.getElementById('custPwsModal').classList.remove('active');
-      logTelemetry(`[ANALYTICS] PWS Score recorded: <b>${val}</b>.`);
-      alert(`Feedback recorded: "${val}" logged to ME-TIME Analytics!`);
-    }
+    function showFeedbackCommentBox() {
+  document.getElementById('pwsBoxInitial').style.display = 'none';
+  document.getElementById('pwsBoxComment').style.display = 'block';
+}
+
+function submitPwsFeedback(val, withComment = false) {
+  let comment = "";
+  if (withComment) {
+    comment = document.getElementById('pwsCommentText').value;
+  }
+  
+  // Reset modal displays for future test runs
+  document.getElementById('custPwsModal').classList.remove('active');
+  setTimeout(() => {
+    document.getElementById('pwsBoxInitial').style.display = 'block';
+    document.getElementById('pwsBoxComment').style.display = 'none';
+    document.getElementById('pwsCommentText').value = '';
+  }, 400);
+  
+  if (comment) {
+    logTelemetry(`[ANALYTICS] PWS Score: <b>${val}</b> | Comment: "${comment}"`);
+    alert(`Feedback & comment recorded! Sent to ME-TIME Analytics.`);
+  } else {
+    logTelemetry(`[ANALYTICS] PWS Score recorded: <b>${val}</b>.`);
+    alert(`Feedback recorded: "${val}" logged to ME-TIME Analytics!`);
+  }
+}
 
     window.onload = () => {
       initMaps();
