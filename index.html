@@ -310,6 +310,31 @@
     .doc-page-layout code { font-family: 'Fira Code', Consolas, Monaco, monospace; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: #FCD34D; }
 
     #swagger-ui-container { background: #FFF; border-radius: 16px; padding: 12px; }
+
+    /* ENTERPRISE ANALYTICS COMMAND CENTER CSS */
+    .metric-card-deluxe {
+      background: linear-gradient(145deg, #0F172A 0%, #111C38 100%);
+      border: 1px solid #1E293B;
+      border-radius: 18px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .metric-card-deluxe:hover {
+      transform: translateY(-2px);
+      border-color: #38BDF8;
+    }
+    .live-pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #10B981;
+      display: inline-block; box-shadow: 0 0 10px #10B981; animation: livePulse 1.8s infinite;
+    }
+    @keyframes livePulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
   </style>
 </head>
 <body>
@@ -630,12 +655,14 @@
   <div class="tab-view-container" id="tab-analytics">
     <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:18px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
       <div>
-        <h2 style="color:#38BDF8; font-size:1.2rem; margin-bottom:4px;">ME-TIME™ Enterprise Telemetry Dashboard</h2>
-        <p style="color:#94A3B8; font-size:0.82rem;">Real-time operational telemetry, Perceived Wait Satisfaction (PWS), anxiety reduction, and latency SLA monitoring.</p>
+        <h2 style="color:#38BDF8; font-size:1.25rem; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+          <span class="live-pulse-dot"></span> ME-TIME™ Enterprise Telemetry &amp; Impact Engine
+        </h2>
+        <p style="color:#94A3B8; font-size:0.82rem;">Real-time ecosystem intelligence: Perceived Wait Satisfaction (PWS), anxiety reduction, dynamic queue adaptation, and SLA tracking across all host platforms.</p>
       </div>
-      <div style="display:flex; gap:10px;">
-        <span style="background:#064E3B; color:#34D399; font-size:0.75rem; font-weight:800; padding:6px 12px; border-radius:10px; display:flex; align-items:center; gap:6px;">
-          <span style="width:7px; height:7px; background:#10B981; border-radius:50%;"></span> Live Telemetry Stream
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span style="background:#064E3B; color:#34D399; font-size:0.75rem; font-weight:800; padding:6px 12px; border-radius:10px; border:1px solid #059669; display:flex; align-items:center; gap:6px;">
+          <span style="width:7px; height:7px; background:#10B981; border-radius:50%;"></span> Live Ingestion: <b id="liveEventsCount">1,842 req/s</b>
         </span>
       </div>
     </div>
@@ -741,8 +768,11 @@
       }
     }
 
-    // PURE NATIVE JS ANALYTICS RENDERER (NO BUILD / NO COMPILATION LAG)
+    // =========================================================================
+    // ENTERPRISE ANALYTICS COMMAND CENTER ENGINE (REAL-TIME LIVE TELEMETRY)
+    // =========================================================================
     let currentAnalyticsTenant = 'all';
+    let analyticsLiveTickerInterval = null;
 
     function setAnalyticsTenant(tenant) {
       currentAnalyticsTenant = tenant;
@@ -753,132 +783,272 @@
       const root = document.getElementById('analytics-root');
       if (!root) return;
 
-      let pws = '76.4%';
-      let refresh = '1.8 / ord';
-      let calls = '0.12 / ord';
-      let sla = '142 ms';
+      let tenantBadge = "All Connected Platforms";
+      let pwsVal = "76.4%";
+      let refreshVal = "1.8 / ord";
+      let callsVal = "0.12 / ord";
+      let slaVal = "138 ms";
+      let activeStreams = "24,819";
+      let delayDeflect = "82.4%";
+      let audioConversion = "68%";
+      let doomScroll = "22%";
+      let mapStare = "10%";
 
-      if (currentAnalyticsTenant === 'swiggy') {
-        pws = '78.1%'; refresh = '1.6 / ord'; calls = '0.09 / ord'; sla = '128 ms';
-      } else if (currentAnalyticsTenant === 'rideco') {
-        pws = '73.2%'; refresh = '2.1 / ord'; calls = '0.16 / ord'; sla = '165 ms';
+      if (currentAnalyticsTenant === 'food') {
+        tenantBadge = "Food & Grocery Delivery Platform Host";
+        pwsVal = "78.1%"; refreshVal = "1.6 / ord"; callsVal = "0.09 / ord"; slaVal = "124 ms";
+        activeStreams = "18,450"; delayDeflect = "86.1%"; audioConversion = "71%"; doomScroll = "19%"; mapStare = "10%";
+      } else if (currentAnalyticsTenant === 'ride') {
+        tenantBadge = "Ride-Hailing & Transit Platform Host";
+        pwsVal = "73.2%"; refreshVal = "2.1 / ord"; callsVal = "0.16 / ord"; slaVal = "156 ms";
+        activeStreams = "6,369"; delayDeflect = "77.8%"; audioConversion = "62%"; doomScroll = "26%"; mapStare = "12%";
       }
 
       root.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:20px; color:#F8FAFC;">
-          <!-- TENANT SWITCHER -->
-          <div style="display:flex; gap:8px; background:#111827; padding:6px; border-radius:12px; border:1px solid #1E293B; width:fit-content;">
-            <button onclick="setAnalyticsTenant('all')" style="padding:6px 14px; border-radius:8px; border:none; background:${currentAnalyticsTenant === 'all' ? '#0E7C7B' : 'transparent'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer;">
-              ◆ All Integrations
-            </button>
-            <button onclick="setAnalyticsTenant('swiggy')" style="padding:6px 14px; border-radius:8px; border:none; background:${currentAnalyticsTenant === 'swiggy' ? '#0E7C7B' : 'transparent'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer;">
-              🍔 Swiggy India
-            </button>
-            <button onclick="setAnalyticsTenant('rideco')" style="padding:6px 14px; border-radius:8px; border:none; background:${currentAnalyticsTenant === 'rideco' ? '#0E7C7B' : 'transparent'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer;">
-              🚗 RideCo
-            </button>
-          </div>
-
-          <!-- KPI ROW -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px;">
-            <div style="background:#0F172A; border:1px solid #1E293B; border-radius:16px; padding:18px 20px;">
-              <div style="font-size:0.75rem; font-weight:700; color:#94A3B8; margin-bottom:8px;">Perceived Wait Satisfaction (PWS)</div>
-              <div style="display:flex; align-items:baseline; justify-content:space-between;">
-                <div style="font-size:1.6rem; font-weight:900; color:#F8FAFC;">${pws}</div>
-                <div style="font-size:0.82rem; font-weight:800; color:#34D399;">+44.4%</div>
-              </div>
-              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">North Star Metric (Target: ≥ 75%)</div>
+        <div style="display:flex; flex-direction:column; gap:22px; color:#F8FAFC;">
+          
+          <!-- TOP PLATFORM VERTICAL SELECTOR & LIVE METRIC BAR -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#0B132B; border:1px solid var(--border); border-radius:16px; padding:12px 16px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span style="font-size:0.75rem; font-weight:800; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-right:4px;">Select Host Vertical:</span>
+              <button onclick="setAnalyticsTenant('all')" style="padding:6px 14px; border-radius:10px; border:1px solid ${currentAnalyticsTenant === 'all' ? '#38BDF8' : '#334155'}; background:${currentAnalyticsTenant === 'all' ? '#0E7C7B' : '#111827'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer; transition:all 0.2s;">
+                ◆ All Host Platforms
+              </button>
+              <button onclick="setAnalyticsTenant('food')" style="padding:6px 14px; border-radius:10px; border:1px solid ${currentAnalyticsTenant === 'food' ? '#38BDF8' : '#334155'}; background:${currentAnalyticsTenant === 'food' ? '#0E7C7B' : '#111827'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer; transition:all 0.2s;">
+                🍔 Food &amp; Grocery Delivery
+              </button>
+              <button onclick="setAnalyticsTenant('ride')" style="padding:6px 14px; border-radius:10px; border:1px solid ${currentAnalyticsTenant === 'ride' ? '#38BDF8' : '#334155'}; background:${currentAnalyticsTenant === 'ride' ? '#0E7C7B' : '#111827'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer; transition:all 0.2s;">
+                🚗 Ride-Hailing &amp; Transit
+              </button>
             </div>
-
-            <div style="background:#0F172A; border:1px solid #1E293B; border-radius:16px; padding:18px 20px;">
-              <div style="font-size:0.75rem; font-weight:700; color:#94A3B8; margin-bottom:8px;">Manual Tracker Refreshes</div>
-              <div style="display:flex; align-items:baseline; justify-content:space-between;">
-                <div style="font-size:1.6rem; font-weight:900; color:#F8FAFC;">${refresh}</div>
-                <div style="font-size:0.82rem; font-weight:800; color:#34D399;">-62.5%</div>
-              </div>
-              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Anxiety Proxy (Baseline: 4.8 / order)</div>
-            </div>
-
-            <div style="background:#0F172A; border:1px solid #1E293B; border-radius:16px; padding:18px 20px;">
-              <div style="font-size:0.75rem; font-weight:700; color:#94A3B8; margin-bottom:8px;">In-Wait Driver Inbound Calls</div>
-              <div style="display:flex; align-items:baseline; justify-content:space-between;">
-                <div style="font-size:1.6rem; font-weight:900; color:#F8FAFC;">${calls}</div>
-                <div style="font-size:0.82rem; font-weight:800; color:#34D399;">-68.4%</div>
-              </div>
-              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Doorstep Friction (Baseline: 0.38 / order)</div>
-            </div>
-
-            <div style="background:#0F172A; border:1px solid #1E293B; border-radius:16px; padding:18px 20px;">
-              <div style="font-size:0.75rem; font-weight:700; color:#94A3B8; margin-bottom:8px;">p95 Recommendation Latency</div>
-              <div style="display:flex; align-items:baseline; justify-content:space-between;">
-                <div style="font-size:1.6rem; font-weight:900; color:#F8FAFC;">${sla}</div>
-                <div style="font-size:0.82rem; font-weight:800; color:#34D399;">PASS</div>
-              </div>
-              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">System SLA (Budget: ≤ 300 ms)</div>
+            
+            <div style="font-size:0.74rem; font-weight:700; color:#38BDF8; background:rgba(56,189,248,0.1); padding:4px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
+              Active Scope: <b>${tenantBadge}</b>
             </div>
           </div>
 
-          <!-- DUAL CHARTS -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(450px, 1fr)); gap:16px;">
-            <!-- CARD 1: ATTENTION CONVERSION -->
-            <div style="background:#0F172A; border:1px solid #1E293B; border-radius:18px; padding:22px;">
-              <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8; margin-bottom:14px;">User Attention Allocation (24-Min Wait Window)</h3>
-              
-              <div style="margin-bottom:12px;">
+          <!-- 5-PILLAR EXECUTIVE KPI GRID -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:14px;">
+            
+            <div class="metric-card-deluxe">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">North Star: PWS Rating</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">+44.4% Uplift</span>
+              </div>
+              <div style="font-size:1.85rem; font-weight:900; color:#38BDF8; line-height:1;" id="liveKpiPws">${pwsVal}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Positive Wait Perception (Target: ≥ 75.0%)</div>
+            </div>
+
+            <div class="metric-card-deluxe">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Map Stare Frequency</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">-62.5% Panic Drop</span>
+              </div>
+              <div style="font-size:1.85rem; font-weight:900; color:#F8FAFC; line-height:1;" id="liveKpiRefresh">${refreshVal}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Anxiety Proxy (Baseline: 4.8 opens/order)</div>
+            </div>
+
+            <div class="metric-card-deluxe">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Doorstep Driver Calls</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">-68.4% Calls</span>
+              </div>
+              <div style="font-size:1.85rem; font-weight:900; color:#F8FAFC; line-height:1;" id="liveKpiCalls">${callsVal}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Gate Friction (Baseline: 0.38 calls/order)</div>
+            </div>
+
+            <div class="metric-card-deluxe">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Delay WISMO Deflection</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#FCD34D; background:rgba(252,211,77,0.15); padding:2px 6px; border-radius:6px;">Auto-Extended</span>
+              </div>
+              <div style="font-size:1.85rem; font-weight:900; color:#FCD34D; line-height:1;" id="liveKpiDeflect">${delayDeflect}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Support ticket reduction on +10m delays</div>
+            </div>
+
+            <div class="metric-card-deluxe">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">p95 Edge SLA Latency</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">SLA Met</span>
+              </div>
+              <div style="font-size:1.85rem; font-weight:900; color:#34D399; line-height:1;" id="liveKpiSla">${slaVal}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Multi-Tenant Gateway SLA (Budget: ≤ 300ms)</div>
+            </div>
+
+          </div>
+
+          <!-- ROW 2: ATTENTION MATRIX & LIVE ENGINE TELEMETRY -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(480px, 1fr)); gap:18px;">
+            
+            <!-- ATTENTION RE-ALLOCATION RADAR -->
+            <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Wait Window Attention Distribution (24-Min Countdown)</h3>
+                <span style="font-size:0.7rem; color:#94A3B8;">Measured via SDK Viewport Telemetry</span>
+              </div>
+
+              <div style="margin-bottom:14px;">
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
-                  <span>Intentional Rest / Audio Engagement</span>
-                  <span style="color:#34D399;">68% (Target State)</span>
+                  <span>🎧 Intentional Audio Leisure &amp; Micro-Podcasts</span>
+                  <span style="color:#34D399;">${audioConversion} (Target State Reclaimed)</span>
                 </div>
-                <div style="width:100%; height:10px; background:#1E293B; border-radius:5px; overflow:hidden;">
-                  <div style="width:68%; height:100%; background:#0E7C7B;"></div>
+                <div style="width:100%; height:12px; background:#1E293B; border-radius:6px; overflow:hidden;">
+                  <div style="width:${audioConversion}; height:100%; background:linear-gradient(90deg, #0E7C7B, #10B981); border-radius:6px;"></div>
                 </div>
               </div>
 
-              <div style="margin-bottom:12px;">
+              <div style="margin-bottom:14px;">
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
-                  <span>Social Media Doom-Scrolling</span>
-                  <span style="color:#94A3B8;">22% (Down from 58% baseline)</span>
+                  <span>📱 Social Media Doom-Scrolling</span>
+                  <span style="color:#94A3B8;">${doomScroll} (Slashed from 58% baseline)</span>
                 </div>
-                <div style="width:100%; height:10px; background:#1E293B; border-radius:5px; overflow:hidden;">
-                  <div style="width:22%; height:100%; background:#64748B;"></div>
+                <div style="width:100%; height:12px; background:#1E293B; border-radius:6px; overflow:hidden;">
+                  <div style="width:${doomScroll}; height:100%; background:#475569; border-radius:6px;"></div>
                 </div>
               </div>
 
               <div>
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
-                  <span>Anxious Map Staring</span>
-                  <span style="color:#38BDF8;">10% (Down from 23% baseline)</span>
+                  <span>🗺️ Anxious Compulsive Map Staring</span>
+                  <span style="color:#38BDF8;">${mapStare} (Slashed from 23% baseline)</span>
                 </div>
-                <div style="width:100%; height:10px; background:#1E293B; border-radius:5px; overflow:hidden;">
-                  <div style="width:10%; height:100%; background:#0284C7;"></div>
+                <div style="width:100%; height:12px; background:#1E293B; border-radius:6px; overflow:hidden;">
+                  <div style="width:${mapStare}; height:100%; background:#0284C7; border-radius:6px;"></div>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; border-top:1px solid #1E293B; padding-top:14px;">
+                <div style="background:#111827; padding:10px 12px; border-radius:12px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">ACTIVE CONCURRENT SESSIONS</div>
+                  <div style="font-size:1.2rem; font-weight:900; color:#38BDF8; margin-top:2px;" id="liveActiveSessions">${activeStreams}</div>
+                </div>
+                <div style="background:#111827; padding:10px 12px; border-radius:12px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">CLIENT PRE-CACHE HIT RATIO</div>
+                  <div style="font-size:1.2rem; font-weight:900; color:#34D399; margin-top:2px;">99.2% (IndexedDB)</div>
                 </div>
               </div>
             </div>
 
-            <!-- CARD 2: RECENT QUALITATIVE VERBATIMS -->
-            <div style="background:#0F172A; border:1px solid #1E293B; border-radius:18px; padding:22px;">
-              <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8; margin-bottom:14px;">Progressive Feedback &amp; Verbatim Stream</h3>
-              <div style="display:flex; flex-direction:column; gap:10px;">
-                <div style="background:#111827; border:1px solid #1E293B; border-radius:10px; padding:10px 12px; font-size:0.75rem;">
-                  <div style="display:flex; justify-content:space-between; font-weight:800; color:#34D399; margin-bottom:2px;">
-                    <span>⚡ short_fine (Tech Podcast)</span>
-                    <span style="color:#64748B; font-weight:600;">2 mins ago</span>
-                  </div>
-                  <div style="color:#CBD5E1;">"The 12-minute AI brief finished right as the driver reached the gate. Didn't look at the map once."</div>
+            <!-- DRIVER FULFILLMENT & COURIER ERGONOMICS -->
+            <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Delivery Partner Handoff &amp; Linguistic Metrics</h3>
+                <span style="font-size:0.7rem; color:#34D399; font-weight:700;">● Multilingual Active</span>
+              </div>
+
+              <!-- LANGUAGE DISTRIBUTION -->
+              <div style="background:#111827; border:1px solid #1E293B; border-radius:14px; padding:12px; margin-bottom:14px;">
+                <div style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase; margin-bottom:8px;">Active Driver Language Mix</div>
+                <div style="display:flex; height:12px; border-radius:6px; overflow:hidden; margin-bottom:8px;">
+                  <div style="width:52%; background:#0E7C7B;" title="Tamil: 52%"></div>
+                  <div style="width:31%; background:#0284C7;" title="Hindi: 31%"></div>
+                  <div style="width:17%; background:#D97706;" title="English: 17%"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.68rem; font-weight:700;">
+                  <span style="color:#2DD4BF;">■ தமிழ் (Tamil): 52%</span>
+                  <span style="color:#38BDF8;">■ हिन्दी (Hindi): 31%</span>
+                  <span style="color:#FCD34D;">■ English: 17%</span>
+                </div>
+              </div>
+
+              <!-- HANDOFF TELEMETRY STATS -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="background:#111827; padding:12px; border-radius:12px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">DOORSTEP DWELL TIME</div>
+                  <div style="font-size:1.15rem; font-weight:900; color:#34D399; margin-top:2px;">1.4 Mins <span style="font-size:0.72rem; color:#10B981;">(▼ 42%)</span></div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Down from 2.5 min baseline</div>
                 </div>
 
-                <div style="background:#111827; border:1px solid #1E293B; border-radius:10px; padding:10px 12px; font-size:0.75rem;">
-                  <div style="display:flex; justify-content:space-between; font-weight:800; color:#F59E0B; margin-bottom:2px;">
-                    <span>⏳ long_frustrating (Traffic Delay)</span>
-                    <span style="color:#64748B; font-weight:600;">14 mins ago</span>
-                  </div>
-                  <div style="color:#CBD5E1;">"Traffic delayed by 10 mins; the bonus music track helped, but food was slightly cold."</div>
+                <div style="background:#111827; padding:12px; border-radius:12px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">TTS VOICE NOTE ADOPTION</div>
+                  <div style="font-size:1.15rem; font-weight:900; color:#38BDF8; margin-top:2px;">54.2% Drivers</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Listened via 1-tap audio</div>
                 </div>
+
+                <div style="background:#111827; padding:12px; border-radius:12px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">CAUTION BADGE ACCURACY</div>
+                  <div style="font-size:1.15rem; font-weight:900; color:#FCD34D; margin-top:2px;">98.4% Precision</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Pet, Gate &amp; Quiet drops</div>
+                </div>
+
+                <div style="background:#111827; padding:12px; border-radius:12px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">3D KNOCK SYNC ACCURACY</div>
+                  <div style="font-size:1.15rem; font-weight:900; color:#34D399; margin-top:2px;">99.1% &lt;50m Sync</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Proximity audio ducking</div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ROW 3: LIVE VERBATIMS & PROGRESSIVE FEEDBACK NLP FEED -->
+          <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <div>
+                <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Live Progressive Feedback Stream &amp; NLP Theme Ingestion</h3>
+                <p style="font-size:0.72rem; color:#94A3B8; margin-top:2px;">Real-time verbatim comments captured via the post-order 1-tap progressive disclosure flow.</p>
+              </div>
+              <span style="font-size:0.7rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.1); padding:4px 8px; border-radius:8px;">● Auto-Updating Feed</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:12px;" id="liveVerbatimCards">
+              <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:12px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <span style="font-size:0.75rem; font-weight:800; color:#34D399;">⚡ short_fine (Tech Podcast • 12m)</span>
+                  <span style="font-size:0.65rem; color:#64748B;">Just now</span>
+                </div>
+                <div style="font-size:0.76rem; color:#CBD5E1; line-height:1.4;">"The 12-minute AI brief finished right as the driver reached the gate. Didn't look at the tracking map once."</div>
+                <div style="font-size:0.62rem; color:#38BDF8; margin-top:6px; font-weight:700;">TAGS: #ZeroMapOpens #TimeBudgetMatch</div>
+              </div>
+
+              <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:12px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <span style="font-size:0.75rem; font-weight:800; color:#F59E0B;">⏳ long_frustrating (Traffic Delay +10m)</span>
+                  <span style="font-size:0.65rem; color:#64748B;">3 mins ago</span>
+                </div>
+                <div style="font-size:0.76rem; color:#CBD5E1; line-height:1.4;">"Traffic delayed the order by 10 mins; the bonus lo-fi track kept playing smoothly, but food took 40 mins total."</div>
+                <div style="font-size:0.62rem; color:#FCD34D; margin-top:6px; font-weight:700;">TAGS: #DynamicAutoAppend #LogisticsCongestion</div>
+              </div>
+
+              <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:12px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <span style="font-size:0.75rem; font-weight:800; color:#34D399;">⚡ short_fine (Tamil Melodies • 18m)</span>
+                  <span style="font-size:0.65rem; color:#64748B;">7 mins ago</span>
+                </div>
+                <div style="font-size:0.76rem; color:#CBD5E1; line-height:1.4;">"Driver followed Tamil landmark note without calling me from gate. 3D knock vibration alerted me before doorbell."</div>
+                <div style="font-size:0.62rem; color:#38BDF8; margin-top:6px; font-weight:700;">TAGS: #TamilTerminal #ZeroFrictionHandoff</div>
               </div>
             </div>
           </div>
+
         </div>
       `;
+
+      // START SIMULATED REAL-TIME TELEMETRY STREAM
+      if (!analyticsLiveTickerInterval) {
+        analyticsLiveTickerInterval = setInterval(() => {
+          const streamEl = document.getElementById('liveActiveSessions');
+          const eventsEl = document.getElementById('liveEventsCount');
+          const slaEl = document.getElementById('liveKpiSla');
+          
+          if (streamEl) {
+            const base = currentAnalyticsTenant === 'food' ? 18450 : (currentAnalyticsTenant === 'ride' ? 6369 : 24819);
+            const jitter = Math.floor(Math.random() * 80) - 40;
+            streamEl.innerText = (base + jitter).toLocaleString();
+          }
+
+          if (eventsEl) {
+            const req = 1800 + Math.floor(Math.random() * 120);
+            eventsEl.innerText = `${req.toLocaleString()} req/s`;
+          }
+
+          if (slaEl) {
+            const latency = 135 + Math.floor(Math.random() * 10);
+            slaEl.innerText = `${latency} ms`;
+          }
+        }, 2500);
+      }
     }
 
     function switchGlobalTab(tabKey, btn) {
