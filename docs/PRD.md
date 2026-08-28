@@ -20,47 +20,47 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 ### 1.2 Problem Statement, Behavioral Impact & Ecosystem Data
 #### 1.2.1 Real-World Data & Behavioral Telemetry
 
-POST-ORDER USER ATTENTION DISTRIBUTION (20–45 MIN WAIT WINDOW)
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ [████████████████████████████████] Low-Value Doom-Scrolling (58%)          │
-│ [████████████████████] Anxious App Switching & Map Checking (23%)           │
-│ [████████] Fragmented / Distracted Tasks (16%)                              │
-│ [██] Intentional Rest / Prime Leisure (3%)                                  │
-└─────────────────────────────────────────────────────────────────────────────┘
+**Post-Order User Attention Distribution (20–45 Min Wait Window)**
 
-DELIVERY LIFECYCLE TELEMETRY & MULTI-SIDED FRICTION CORRELATION
-┌──────────────────────────┬──────────────┬────────────────────────┬─────────────────────────┐
-│ Lifecycle Stage          │ Window (Avg) │ User Map Check Rate    │ Key Friction / Failure  │
-├──────────────────────────┼──────────────┼────────────────────────┼─────────────────────────┤
-│ 1. Kitchen Preparation   │ 0 – 10 Mins  │ 1.2 Opens              │ "Why is food stagnant?" │
-│ 2. In-Transit Corridor   │ 10 – 30 Mins │ 4.6 Compulsive Opens   │ Peak Anxiety & Doomloop │
-│ 3. Logistics Slippage    │ +8 – 15 Mins │ Continuous Staring     │ WISMO Support Tickets   │
-│ 4. Doorstep Final-Mile   │ Last 3 Mins  │ Frantic Phone Grabbing │ Language & Gate Blocks  │
-└──────────────────────────┴──────────────┴────────────────────────┴─────────────────────────┘
+| User Activity | Share (%) | Visual Distribution | Core Psychological State |
+| :--- | :--- | :--- | :--- |
+| **Low-Value Doom-Scrolling** | **58%** | `████████████████████████████` | Shallow distraction, cognitive exhaustion, passive regret |
+| **Anxious App & Map Checking** | **23%** | `████████████` | Anticipatory anxiety, compulsive ETA verification |
+| **Fragmented Tasks / Domestic** | **16%** | `████████` | Interrupted concentration, divided attention |
+| **Intentional Rest / Prime Leisure** | **3%** | `██` | Mindful relaxation, productive focus (Target state) |
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                   QUANTIFIED POST-ORDER FRICTION METRICS                    │
-├─────────────────────┬─────────────────────┬─────────────────────┬───────────┤
-│ 📱 81%              │ 🎫 62%              │ ⭐ 1-Star           │ 📞 0.38    │
-│ TRACKING ANXIETY    │ SUPPORT TICKETS     │ RATING SKEW         │ CALLS/ORD │
-├─────────────────────┼─────────────────────┼─────────────────────┼───────────┤
-│ Active users check  │ Inbound live chat   │ Negative ratings    │ Friction  │
-│ tracking maps 2–5+  │ escalations caused  │ blamed on food/chef │ calls per │
-│ times due to silent │ by uncommunicated   │ caused purely by    │ order due │
-│ ETA fluctuations.   │ dynamic delays.     │ wait perception.    │ to gates. │
-└─────────────────────┴─────────────────────┴─────────────────────┴───────────┘
+---
+
+**Delivery Lifecycle Telemetry & Multi-Sided Friction Correlation**
+
+| Lifecycle Stage | Window (Avg) | User Map Check Rate | Primary Friction & Failure Modes |
+| :--- | :--- | :--- | :--- |
+| **1. Kitchen Preparation** | 0 – 10 Mins | **1.2 Opens** | Customer suspicion: *"Why has the kitchen not started?"* |
+| **2. In-Transit Corridor** | 10 – 30 Mins | **4.6 Compulsive Opens** | Peak temporal anxiety, map doomloop, cognitive distraction |
+| **3. Logistics Slippage** | +8 – 15 Mins | **Continuous Staring** | Inbound WISMO support tickets, cancellation and refund threats[cite: 1] |
+| **4. Doorstep Final-Mile** | Last 3 Mins | **Frantic Checking** | Language barrier at gate, unexpected doorbell shocks, pet alerts[cite: 1] |
+
+---
+
+**Quantified Post-Order Friction Metrics**
+
+| Metric | Measured Impact | Root Cause & Operational Consequence |
+| :--- | :--- | :--- |
+| 📱 **81% Tracking Anxiety** | 2–5+ map opens per order | Driven by silent ETA fluctuations and lack of arrival certainty. |
+| 🎫 **62% Support Tickets** | Dominates live chat queues | Inbound "Where Is My Order?" tickets triggered by uncommunicated delays[cite: 1]. |
+| ⭐ **1-Star Rating Skew** | Skews restaurant & rider scores | Food taste ratings penalized unfairly due to wait-time perception[cite: 2]. |
+| 📞 **0.38 Calls / Order** | Direct delivery disruption | Communication friction caused by unreadable English gate notes or pet hazards[cite: 1]. |
+
+---
 
 #### 1.2.2 Categorized Problem Breakdown & 360° Ecosystem Ripple Effects
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    THE 5 POST-ORDER SYSTEMIC FAILURES                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 1. Temporal Uncertainty & Tracking Anxiety (The "Dead Wait" Window)         │
-│ 2. Unproductive Multitasking & Attention Fragmentation (Doom-Scrolling)     │
-│ 3. Logistics Slippage & Unexplained Delay Escalation (WISMO Surge)          │
-│ 4. Final-Mile Handoff, Linguistic & Safety Friction                         │
-│ 5. Feedback Blending & Rating Contamination (The PWS Blind Spot)            │
-└─────────────────────────────────────────────────────────────────────────────┘
+**The 5 Post-Order Systemic Failures:**
+1. **Temporal Uncertainty & Tracking Anxiety:** The psychological burden of the "dead wait" window.
+2. **Unproductive Multitasking & Attention Fragmentation:** Passive doom-scrolling with zero structured wait utilities.
+3. **Logistics Slippage & Unexplained Delay Escalation:** Proactive communication vacuum causing live chat surges[cite: 1].
+4. **Final-Mile Handoff, Linguistic & Safety Friction:** Gate navigation breakdowns, unannounced door arrivals, and safety risks[cite: 1].
+5. **Feedback Blending & Rating Contamination:** The blind spot where wait anxiety contaminates culinary and driver ratings[cite: 2].
 
 ### 1. Temporal Uncertainty & Compulsive Map Tracking (The "Dead Wait")
 
