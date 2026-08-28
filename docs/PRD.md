@@ -90,7 +90,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 
 ##### C. Logistics Slippage & Unexplained Delay Escalation
 
-* **Problem Statement:** Operational bottlenecks—such as kitchen rushes, road congestion, or monsoon downpours—inevitably cause $+10\text{ to }15\text{-minute}$ delivery delays[cite: 1]. Existing platforms update ETAs silently without proactive explanations or engaging context.
+* **Problem Statement:** Operational bottlenecks—such as kitchen rushes, road congestion, or monsoon downpours—inevitably cause $+10\text{ to }15\text{-minute}$ delivery delays. Existing platforms update ETAs silently without proactive explanations or engaging context.
 
 * **Behavioral Impact Analysis:**
   * **WISMO ("Where Is My Order?") Ticket Surge:** Over 62% of inbound live customer support tickets are triggered by unexplained ETA shifts rather than actual transit cancellations.
@@ -98,12 +98,12 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 
 * **Multi-Sided Ecosystem Impact:**
   * **End Users:** Feel helpless and unvalued, turning a routine meal order into a stressful dispute.
-  * **Delivery Partners / Driver App:** Face unearned hostility and low customer ratings upon delivery, despite navigating dangerous weather or heavy traffic hazards[cite: 1].
+  * **Delivery Partners / Driver App:** Face unearned hostility and low customer ratings upon delivery, despite navigating dangerous weather or heavy traffic hazards.
   * **Restaurant Reputation:** Receives direct 1-star reviews on social media for "slow preparation," even when the delay was purely road congestion.
 
 ##### D. Final-Mile Handoff, Linguistic & Safety Friction
 
-* **Problem Statement:** The final 50–100 meters of fulfillment suffer from a breakdown in communication[cite: 1]. Non-English-speaking delivery partners struggle to decipher complex English checkout notes or gate instructions, while unannounced arrivals interrupt remote work meetings or trigger barking pets.
+* **Problem Statement:** The final 50–100 meters of fulfillment suffer from a breakdown in communication. Non-English-speaking delivery partners struggle to decipher complex English checkout notes or gate instructions, while unannounced arrivals interrupt remote work meetings or trigger barking pets.
 
 * **Behavioral Impact Analysis:**
   * **Repetitive Phone Calls:** Over 34% of negative delivery reviews cite delivery partners calling 2–3 times from the entrance gate.
@@ -111,7 +111,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 
 * **Multi-Sided Ecosystem Impact:**
   * **End Users:** Suffer meeting disruptions, domestic friction, and agitation at the exact moment of meal handover.
-  * **Delivery Partners / Driver App:** Suffer wasted vehicle fuel, missed delivery incentives (SLAs), and physical safety risks (e.g., unrestrained guard dogs or hostile building security)[cite: 1].
+  * **Delivery Partners / Driver App:** Suffer wasted vehicle fuel, missed delivery incentives (SLAs), and physical safety risks (e.g., unrestrained guard dogs or hostile building security).
   * **Restaurant Reputation:** Negative doorstep friction leaves a sour final impression that ruins the overall dining and brand experience.
 
 ##### E. Feedback Blending & Rating Contamination (The PWS Blind Spot)
@@ -123,8 +123,8 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
   * **Zero Root-Cause Isolation:** Product and operations teams cannot distinguish whether poor ratings stem from kitchen quality, delivery routing errors, or pure wait perception.
 
 * **Multi-Sided Ecosystem Impact:**
-  * **End Users:** Have no dedicated, 1-tap outlet to evaluate wait perception without penalizing innocent restaurants or riders[cite: 1, 2].
-  * **Delivery Partners / Driver App:** Driver payout incentives and leaderboard ranks are penalized unfairly by 1-star reviews driven by wait-time frustration[cite: 1, 2].
+  * **End Users:** Have no dedicated, 1-tap outlet to evaluate wait perception without penalizing innocent restaurants or riders.
+  * **Delivery Partners / Driver App:** Driver payout incentives and leaderboard ranks are penalized unfairly by 1-star reviews driven by wait-time frustration.
   * **Restaurant Reputation:** Restaurant search rankings, customer trust badges, and platform commission tiers suffer severe drops due to delivery-phase delays beyond the kitchen's control.
 
 #### 1.2.3 Real-World Scenario Impact Matrix
