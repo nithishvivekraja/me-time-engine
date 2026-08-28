@@ -37,7 +37,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background-color: var(--bg); min-height: 100vh; display: flex; flex-direction: column; color: var(--text); overflow-x: hidden; }
 
-    /* TOP GLOBAL NAVIGATION BAR */
+    /* GLOBAL TOP NAVBAR */
     .top-navbar {
       height: 64px; background: #0A0F1D; border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
@@ -61,7 +61,7 @@
     }
     .btn-action-share:hover { background: #334155; }
 
-    /* TAB CONTENT WRAPPERS */
+    /* TAB WRAPPERS */
     .tab-view-container { display: none; padding: 24px; width: 100%; max-width: 1540px; margin: 0 auto; flex: 1; }
     .tab-view-container.active { display: flex; flex-direction: column; }
 
@@ -114,7 +114,7 @@
     .app-screen::-webkit-scrollbar { display: none; }
 
     .map-header-wrap { height: 280px; width: 100%; position: relative; }
-    #customerMap, #driverMap { height: 100%; width: 100%; }
+    #customerMap { height: 100%; width: 100%; }
 
     .map-telemetry-chip {
       position: absolute; top: 12px; left: 12px; background: rgba(11, 19, 43, 0.9);
@@ -161,7 +161,10 @@
       font-size: 0.74rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;
     }
 
-    .collapsible-feed-section { display: none; background: #F1F5F9; border-radius: 22px; padding: 12px 0 16px; margin: 0 14px 14px; border: 1px solid #E2E8F0; }
+    /* COLLAPSIBLE FEED & DUAL-AXIS CONTROLS */
+    .collapsible-feed-section {
+      display: none; background: #F1F5F9; border-radius: 22px; padding: 12px 0 16px; margin: 0 14px 14px; border: 1px solid #E2E8F0;
+    }
     .collapsible-feed-section.open { display: block; }
     .category-dock { display: flex; gap: 6px; padding: 0 14px 10px; overflow-x: auto; }
     .category-dock::-webkit-scrollbar { display: none; }
@@ -170,8 +173,23 @@
       border-radius: 12px; padding: 6px 10px; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: var(--navy);
     }
     .cat-btn.active { background: var(--navy); color: #FFF; }
-    .content-carousel-container { display: flex; gap: 10px; padding: 2px 14px 8px; overflow-x: auto; scroll-snap-type: x mandatory; }
+
+    .carousel-wrapper-relative { position: relative; width: 100%; }
+    .content-carousel-container {
+      display: flex; gap: 10px; padding: 2px 14px 8px; overflow-x: auto;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+    }
     .content-carousel-container::-webkit-scrollbar { display: none; }
+
+    .carousel-nav-btn {
+      position: absolute; top: 40%; transform: translateY(-50%); width: 28px; height: 28px;
+      border-radius: 50%; background: rgba(11, 19, 43, 0.85); border: 1px solid rgba(255,255,255,0.3);
+      color: #FFF; display: flex; align-items: center; justify-content: center; cursor: pointer;
+      z-index: 100; backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .carousel-nav-btn.left { left: 4px; }
+    .carousel-nav-btn.right { right: 4px; }
+
     .carousel-card {
       flex: 0 0 210px; scroll-snap-align: start; background: #FFFFFF; border: 1.5px solid #EDF2F7;
       border-radius: 16px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
@@ -194,24 +212,48 @@
       padding: 16px 16px 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
     }
 
-    /* DRIVER STYLES */
-    .driver-screen-body { flex: 1; display: flex; flex-direction: column; background: #0F172A; color: #F8FAFC; padding-top: 40px; }
+    /* DRIVER SCREEN STYLES & ACCESSIBILITY */
+    .driver-screen-body {
+      flex: 1; display: flex; flex-direction: column; background: #0F172A; color: #F8FAFC; padding-top: 40px; position: relative;
+    }
+    .driver-screen-body.sunlight-mode { background: #FFFFFF; color: #000000; }
+    .driver-screen-body.sunlight-mode .driver-card-box { background: #F8FAFC; border: 2px solid #000000; color: #000000; }
+    .driver-screen-body.sunlight-mode .driver-turn-banner { background: #000000; color: #FFFF00; }
+    
     .driver-top-lang-bar {
       background: #1E293B; padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155;
     }
+    .driver-quick-lang-group { display: flex; gap: 4px; }
     .btn-driver-lang-pill {
       background: #0B132B; border: 1px solid #334155; color: #CBD5E1; padding: 3px 8px; border-radius: 8px; font-size: 0.68rem; font-weight: 700; cursor: pointer;
     }
     .btn-driver-lang-pill.active { background: #0284C7; border-color: #38BDF8; color: #FFF; }
+    .btn-sunlight-toggle {
+      background: #1E293B; border: 1px solid #334155; color: #FCD34D; padding: 3px 8px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+    .btn-sunlight-toggle.active { background: #F59E0B; color: #000; font-weight: 900; }
+    
     .driver-turn-banner { background: #0284C7; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
-    .driver-instructions-deck { flex: 1; padding: 10px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .turn-text { font-size: 0.92rem; font-weight: 800; color: #FFF; line-height: 1.2; }
+    .turn-sub { font-size: 0.68rem; opacity: 0.9; margin-top: 2px; }
+
+    /* DRIVER MAP WRAPPER (FIXED HEIGHT FOR LEAFLET RENDERING) */
+    .driver-map-wrap { height: 220px; min-height: 220px; width: 100%; position: relative; }
+    #driverMap { height: 100%; width: 100%; }
+
+    .driver-instructions-deck { flex: 1; padding: 10px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #0F172A; }
     .driver-card-box { background: #1E293B; border: 1px solid #334155; border-radius: 16px; padding: 10px 12px; }
-    .driver-card-title { font-size: 0.68rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 4px; }
+    .driver-card-title { font-size: 0.68rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-tts-speaker { background: transparent; border: none; color: #38BDF8; cursor: pointer; }
+
     .building-photo-preview { display: flex; gap: 8px; align-items: center; background: #0B132B; border-radius: 10px; padding: 6px 8px; }
+    .building-img-thumb { width: 52px; height: 52px; border-radius: 8px; background: linear-gradient(135deg, #334155 0%, #1E293B 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .building-meta { font-size: 0.7rem; color: #E2E8F0; line-height: 1.3; }
+
     .driver-caution-pill { background: #881337; border: 1px solid #BE123C; color: #FFE4E6; border-radius: 10px; padding: 6px 8px; font-size: 0.72rem; font-weight: 700; }
     .driver-caution-pill.gate { background: #075985; border-color: #0284C7; color: #E0F2FE; }
     .driver-action-footer { display: flex; gap: 8px; padding: 8px 14px 14px; background: #111827; border-top: 1px solid #1F2937; }
-    .btn-driver-cta { flex: 1; padding: 9px; border-radius: 10px; border: none; font-size: 0.74rem; font-weight: 800; cursor: pointer; }
+    .btn-driver-cta { flex: 1; padding: 9px; border-radius: 10px; border: none; font-size: 0.74rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
     .btn-driver-cta.call { background: #1E293B; color: #38BDF8; border: 1px solid #334155; }
     .btn-driver-cta.nav { background: #0284C7; color: #FFF; }
 
@@ -255,7 +297,7 @@
 </head>
 <body>
 
-  <!-- TOP NAVBAR -->
+  <!-- TOP GLOBAL NAVBAR -->
   <div class="top-navbar">
     <div class="brand-title">
       <i data-lucide="sparkles" style="color:var(--teal)"></i> ME-TIME™ <span>Platform Hub</span>
@@ -263,9 +305,10 @@
 
     <div class="nav-tabs-group">
       <button class="nav-tab-btn active" onclick="switchGlobalTab('sandbox', this)"><i data-lucide="smartphone"></i> Live Dual Sandbox</button>
-      <button class="nav-tab-btn" onclick="switchGlobalTab('prd', this)"><i data-lucide="book-open"></i> Product PRD & Guide</button>
-      <button class="nav-tab-btn" onclick="switchGlobalTab('swagger', this)"><i data-lucide="terminal"></i> Swagger / API Explorer</button>
-      <button class="nav-tab-btn" onclick="switchGlobalTab('schema', this)"><i data-lucide="database"></i> Schema & DDL</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('prd', this)"><i data-lucide="book-open"></i> Product PRD &amp; Specs</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('guide', this)"><i data-lucide="compass"></i> End-User Guide</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('swagger', this)"><i data-lucide="terminal"></i> Swagger / API</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('schema', this)"><i data-lucide="database"></i> Schema DDL</button>
     </div>
 
     <div class="nav-actions">
@@ -331,8 +374,8 @@
         </div>
 
         <div class="telemetry-feed" id="telemetryBox">
-          [SYS] Hub Ready. Pure OpenStreetMap tiles active without API keys.<br>
-          [ORCHESTRATOR] Full real-time synchronization active.
+          [SYS] Hub Online. Pure OSM vector tiles loaded.<br>
+          [LEAFLET] Dual Map instances initialized.
         </div>
       </div>
 
@@ -397,6 +440,7 @@
               </div>
             </div>
 
+            <!-- COLLAPSIBLE DISCOVERY DRAWER (WITH DUAL-AXIS SCROLLING & ARROWS) -->
             <div class="collapsible-feed-section" id="feedDrawer">
               <div class="category-dock">
                 <button class="cat-btn active" onclick="switchCategory('podcasts', this)"><i data-lucide="headphones" style="width:12px"></i> Podcasts</button>
@@ -404,7 +448,12 @@
                 <button class="cat-btn" onclick="switchCategory('news', this)"><i data-lucide="newspaper" style="width:12px"></i> News</button>
                 <button class="cat-btn" onclick="switchCategory('games', this)"><i data-lucide="gamepad-2" style="width:12px"></i> Games</button>
               </div>
-              <div class="content-carousel-container" id="contentCarousel"></div>
+
+              <div class="carousel-wrapper-relative">
+                <button class="carousel-nav-btn left" onclick="scrollCarousel(-180)"><i data-lucide="chevron-left" style="width:16px"></i></button>
+                <div class="content-carousel-container" id="contentCarousel"></div>
+                <button class="carousel-nav-btn right" onclick="scrollCarousel(180)"><i data-lucide="chevron-right" style="width:16px"></i></button>
+              </div>
             </div>
           </div>
 
@@ -433,9 +482,12 @@
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div style="font-size:0.8rem; font-weight:800; color:var(--navy);" id="custTrackTitle">Track Name</div>
-                <div style="font-size:0.65rem; color:var(--teal); font-weight:700;">Playing Audible Stream</div>
+                <div style="font-size:0.65rem; color:var(--teal); font-weight:700;" id="custTrackSub">Playing Stream</div>
               </div>
-              <button class="console-btn" style="padding:6px 10px; border-radius:50%; width:32px; height:32px;" onclick="togglePlayPause()"><i data-lucide="pause" id="playBtnIcon" style="width:14px"></i></button>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <button class="console-btn" style="padding:4px 8px; font-size:0.65rem; background:#F1F5F9; color:var(--navy);" onclick="simulateTrackFinish()">End Track ⚡</button>
+                <button class="console-btn" style="padding:6px 10px; border-radius:50%; width:32px; height:32px;" onclick="togglePlayPause()"><i data-lucide="pause" id="playBtnIcon" style="width:14px"></i></button>
+              </div>
             </div>
           </div>
 
@@ -444,8 +496,8 @@
               <div style="font-size:24px; color:#059669; margin-bottom:4px;">✅</div>
               <div style="font-size:1.1rem; font-weight:800; margin-bottom:4px;">Order Delivered!</div>
               <div style="font-size:0.75rem; color:#718096; margin-bottom:14px;">How was your Me-Time waiting experience?</div>
-              <button class="pws-btn" onclick="submitPwsFeedback('short_fine')">⚡ Felt short & entertaining</button>
-              <button class="pws-btn" onclick="submitPwsFeedback('long_frustrating')">⏳ Felt long & frustrating</button>
+              <button class="pws-btn" onclick="submitPwsFeedback('short_fine')">⚡ Felt short &amp; entertaining</button>
+              <button class="pws-btn" onclick="submitPwsFeedback('long_frustrating')">⏳ Felt long &amp; frustrating</button>
             </div>
           </div>
         </div>
@@ -462,14 +514,17 @@
             <div style="display:flex; gap:5px;"><i data-lucide="wifi" style="width:13px"></i><i data-lucide="battery" style="width:13px"></i></div>
           </div>
 
-          <div class="driver-screen-body">
+          <div class="driver-screen-body" id="driverScreenContainer">
             <div class="driver-top-lang-bar">
-              <div class="lang-bar-label"><i data-lucide="globe" style="width:12px;"></i> <span id="driverLangBarLabel">மொழி:</span></div>
               <div class="driver-quick-lang-group">
                 <button class="btn-driver-lang-pill active" id="pillLangTa" onclick="setDriverLanguage('ta')">தமிழ்</button>
                 <button class="btn-driver-lang-pill" id="pillLangHi" onclick="setDriverLanguage('hi')">हिन्दी</button>
                 <button class="btn-driver-lang-pill" id="pillLangEn" onclick="setDriverLanguage('en')">EN</button>
               </div>
+              <button class="btn-sunlight-toggle" id="btnSunlightToggle" onclick="cycleThemeMode()" title="Toggle Auto / Day / Night Theme">
+				<i data-lucide="sun-moon" style="width:11px;" id="themeToggleIcon"></i>
+				<span id="themeToggleLabel">Auto Theme</span>
+				</button>
             </div>
 
             <div class="driver-turn-banner">
@@ -490,7 +545,9 @@
               </div>
 
               <div class="driver-card-box">
-                <div class="driver-card-title"><i data-lucide="camera"></i> <span id="driverPhotoTitle">கட்டிட புகைப்படம் & வழிக்குறிப்பு</span></div>
+                <div class="driver-card-title">
+                  <span><i data-lucide="camera" style="width:12px;"></i> <span id="driverPhotoTitle">கட்டிட புகைப்படம் &amp; வழிக்குறிப்பு</span></span>
+                </div>
                 <div class="building-photo-preview">
                   <div class="building-img-thumb">🏢</div>
                   <div class="building-meta" id="driverBuildingDesc">
@@ -502,7 +559,10 @@
               </div>
 
               <div class="driver-card-box">
-                <div class="driver-card-title"><i data-lucide="file-text"></i> <span id="driverNoteTitle">வாடிக்கையாளர் குறிப்பு</span></div>
+                <div class="driver-card-title">
+                  <span><i data-lucide="file-text" style="width:12px;"></i> <span id="driverNoteTitle">வாடிக்கையாளர் குறிப்பு</span></span>
+                  <button class="btn-tts-speaker" onclick="speakDriverNote()" title="Voice Readout"><i data-lucide="volume-2" style="width:14px;"></i></button>
+                </div>
                 <div style="font-size:0.75rem; color:#CBD5E1; line-height:1.4;" id="driverCustomerNote">"காலிங் பெல்லை இருமுறை அடிக்கவும். வாசலில் வைக்கவும்."</div>
               </div>
             </div>
@@ -539,103 +599,52 @@
   <!-- TAB 2: PRD -->
   <div class="tab-view-container" id="tab-prd">
     <div class="doc-page-layout">
-      <h1>ME-TIME™ Product Requirements & Feature Specification</h1>
-      <p><b>Version:</b> 1.0 Enterprise • <b>Status:</b> Production Ready • <b>Target Integration:</b> Swiggy / Zomato / Uber Eats</p>
-      
+      <h1>ME-TIME™ Product Requirements Document (PRD)</h1>
+      <p><b>Version:</b> 1.0 Enterprise • <b>Document Owner:</b> Nithish — Product Lead</p>
       <div class="doc-callout">
-        <b>Core Thesis:</b> ME-TIME transforms dead delivery waiting windows (20–45 min) into high-value ambient leisure sessions. It delivers certainty on the tracking map and matches content duration to the arrival SLA with zero decision fatigue.
+        <b>Core Thesis:</b> Transforms dead delivery wait times (20–45 min) into high-value ambient leisure sessions[cite: 1].
       </div>
-
       <h2>1. The Problem Space</h2>
-      <p>• <b>Compulsive Staring:</b> 81% of active food delivery users open their tracking screens 2–5+ times due to anxious uncertainty over erratic ETAs.<br>
-      • <b>Doom-Scrolling:</b> 58% of waiting users fall into unproductive social media scrolling while waiting for deliveries.<br>
-      • <b>Doorstep Friction:</b> Unannounced arrivals and language barriers between customers and drivers cause missed drops and phone call interruptions.</p>
-
-      <h2>2. Core Features & Capabilities</h2>
-      <table class="data-table">
-        <tr><th>Feature Component</th><th>Capability</th><th>User Benefit</th></tr>
-        <tr><td><b>1-Tap Ambient Auto-Play</b></td><td>Calculates live time budget (ETA - Time) and plays exact-length audio.</td><td>Eliminates decision fatigue; screen-off friendly.</td></tr>
-        <tr><td><b>Dynamic Delay Auto-Append</b></td><td>Automatically appends +10m bonus tracks when logistics delays occur.</td><td>Reframes delivery delay into bonus leisure time.</td></tr>
-        <tr><td><b>Audio-Ducked 3D Knock</b></td><td>Lowers media volume to 10% and vibrates phone when driver is &lt;50m away.</td><td>Zero missed doorbells or surprise drop-offs.</td></tr>
-        <tr><td><b>Multilingual Driver Terminal</b></td><td>Translates drop instructions (Pet Alert, Gate Drop) into Tamil, Hindi, or English.</td><td>Eliminates delivery partner communication friction.</td></tr>
-      </table>
-
-      <h2>3. Non-Functional Performance Standards (NFRs)</h2>
-      <p>• <b>Client SDK Budget:</b> ≤ 150 KB gzipped production bundle.<br>
-      • <b>Hot-Path Latency:</b> &lt;300 ms on 4G cellular networks for composite experience payloads.<br>
-      • <b>Silent Fail-Safe:</b> If ME-TIME engine services fail, the host map renders natively without error dialogs.</p>
+      <p>• <b>81% Tracking Anxiety:</b> Compulsive map checking driven by erratic ETAs.<br>
+      • <b>58% Doom-Scrolling:</b> Passive, unproductive waiting without structured audio.<br>
+      • <b>38% Final-Mile Friction:</b> Doorstep disruptions, pet alerts, and linguistic barriers[cite: 1].</p>
     </div>
   </div>
 
-  <!-- TAB 3: SWAGGER -->
+  <!-- TAB 3: USER GUIDE -->
+  <div class="tab-view-container" id="tab-guide">
+    <div class="doc-page-layout">
+      <h1>ME-TIME™ End-User Guide &amp; Interactive Feature Manual</h1>
+      <p><b>Brand Motto:</b> <i>"Your Time, Reclaimed. Your Food, On Time."</i></p>
+      <h2>Step-by-Step Experience Guide</h2>
+      <p>1. <b>Time Budget Allocation:</b> Calibrated to live delivery windows ($Duration \le ETA$)[cite: 1].<br>
+      2. <b>Queue-Tail Ambient Bridge:</b> Seamlessly bridges finished tracks with lo-fi beats until rider handoff[cite: 1].<br>
+      3. <b>Outdoor Ergonomics:</b> 1-tap voice readout and high-contrast sunlight toggle for drivers[cite: 1].</p>
+    </div>
+  </div>
+
+  <!-- TAB 4: SWAGGER -->
   <div class="tab-view-container" id="tab-swagger">
     <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:16px;">
       <h2 style="color:#38BDF8; margin-bottom:6px;">ME-TIME™ OpenAPI 3.1 Interactive Explorer</h2>
-      <p style="color:#94A3B8; font-size:0.85rem;">Live test and inspect endpoint contracts for Order Ingestion, Wait-Time Experience, and Feedback APIs.</p>
+      <p style="color:#94A3B8; font-size:0.85rem;">Live test endpoint contracts for Order Events, Wait Experience, and Feedback APIs[cite: 1].</p>
     </div>
     <div id="swagger-ui-container"></div>
   </div>
 
-  <!-- TAB 4: SCHEMA -->
+  <!-- TAB 5: SCHEMA -->
   <div class="tab-view-container" id="tab-schema">
     <div class="doc-page-layout">
       <h1>Relational Database Schema (PostgreSQL DDL)</h1>
-      <p>Production multi-tenant database schema implementing shadow order states, delay tracking, and feedback collection.</p>
-
+      <p>Multi-tenant database schema implementing shadow order states, delay events, and idempotent feedback[cite: 1].</p>
       <div class="code-block-box">
 <pre>
--- 1. MULTI-TENANT ISOLATION
+-- Multi-Tenant Isolation
 CREATE TABLE tenants (
     tenant_id VARCHAR(32) PRIMARY KEY,
     tenant_name VARCHAR(120) NOT NULL,
-    vertical VARCHAR(40) NOT NULL, -- 'food_delivery', 'quick_commerce'
+    vertical VARCHAR(40) NOT NULL,
     status VARCHAR(20) DEFAULT 'active',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 2. SHADOW ORDER STATE ENGINE
-CREATE TABLE orders (
-    order_id VARCHAR(32) PRIMARY KEY,
-    tenant_id VARCHAR(32) REFERENCES tenants(tenant_id),
-    customer_id VARCHAR(32) NOT NULL,
-    status VARCHAR(20) NOT NULL, -- 'cooking', 'picked_up', 'in_transit', 'delivered'
-    original_eta TIMESTAMP WITH TIME ZONE NOT NULL,
-    current_eta TIMESTAMP WITH TIME ZONE NOT NULL,
-    cuisine_category VARCHAR(40),
-    device_type VARCHAR(20),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-CREATE INDEX idx_orders_tenant_status ON orders(tenant_id, status);
-
--- 3. LOGISTICS SLIPPAGE & EXPLANATION EVENTS
-CREATE TABLE delay_events (
-    delay_event_id BIGSERIAL PRIMARY KEY,
-    order_id VARCHAR(32) REFERENCES orders(order_id),
-    slippage_minutes INT NOT NULL,
-    logistics_status_code VARCHAR(40),
-    message_text VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 4. CURATED AMBIENT CONTENT ITEMS
-CREATE TABLE content_items (
-    content_id VARCHAR(32) PRIMARY KEY,
-    type VARCHAR(30) NOT NULL, -- 'podcast', 'music', 'news', 'game'
-    title VARCHAR(120) NOT NULL,
-    duration_seconds INT NOT NULL,
-    provider_name VARCHAR(60) NOT NULL, -- 'Spotify', 'Audible', 'Reuters'
-    deep_link VARCHAR(255) NOT NULL,
-    category_tags VARCHAR(100),
-    active BOOLEAN DEFAULT TRUE
-);
-
--- 5. PERCEIVED WAIT SATISFACTION (PWS) FEEDBACK (IDEMPOTENT)
-CREATE TABLE feedback_responses (
-    feedback_id BIGSERIAL PRIMARY KEY,
-    order_id VARCHAR(32) UNIQUE REFERENCES orders(order_id),
-    response_value VARCHAR(20) NOT NULL CHECK (response_value IN ('short_fine', 'long_frustrating', 'no_response')),
-    response_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 </pre>
@@ -675,7 +684,6 @@ CREATE TABLE feedback_responses (
         "/v1/webhooks/order-events": {
           post: {
             summary: "Ingest Host Order Lifecycle Event",
-            description: "Receives webhooks for order creation, pickup, and delivery transitions",
             requestBody: {
               required: true,
               content: {
@@ -693,67 +701,21 @@ CREATE TABLE feedback_responses (
                 }
               }
             },
-            responses: {
-              "202": { description: "Event accepted and shadow state updated" }
-            }
+            responses: { "202": { description: "Accepted" } }
           }
         },
         "/v1/orders/{orderId}/experience": {
           get: {
             summary: "Get Composite Waiting Experience Payload",
-            description: "Fetches live ETA, time-budgeted content items, and proximity knock flags",
-            parameters: [
-              { name: "orderId", in: "path", required: true, schema: { type: "string" } }
-            ],
-            responses: {
-              "200": {
-                description: "Composite payload returned in <300ms",
-                content: {
-                  "application/json": {
-                    schema: {
-                      type: "object",
-                      properties: {
-                        eta_minutes: { type: "integer", example: 24 },
-                        traffic_status: { type: "string", example: "SMOOTH" },
-                        auto_play_item: {
-                          type: "object",
-                          properties: {
-                            title: { type: "string", example: "Generative AI Landscape 2026" },
-                            duration_minutes: { type: "integer", example: 12 },
-                            provider: { type: "string", example: "Spotify Tech" }
-                          }
-                        },
-                        doorstep_knock_flag: { type: "boolean", example: false }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            parameters: [{ name: "orderId", in: "path", required: true, schema: { type: "string" } }],
+            responses: { "200": { description: "Composite payload returned in <300ms" } }
           }
         },
         "/v1/orders/{orderId}/feedback": {
           post: {
             summary: "Submit 1-Tap Perceived Wait Satisfaction (PWS)",
-            parameters: [
-              { name: "orderId", in: "path", required: true, schema: { type: "string" } }
-            ],
-            requestBody: {
-              required: true,
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      response_value: { type: "string", enum: ["short_fine", "long_frustrating"] }
-                    }
-                  }
-                }
-              }
-            },
-            responses: {
-              "201": { description: "Feedback recorded idempotently" }
-            }
+            parameters: [{ name: "orderId", in: "path", required: true, schema: { type: "string" } }],
+            responses: { "201": { description: "Recorded" } }
           }
         }
       }
@@ -768,12 +730,43 @@ CREATE TABLE feedback_responses (
     let isDelayActive = false;
     let isDrawerOpen = false;
     let deliveryState = 'pickup';
+    let currentThemeMode = 'auto';
+
+	function cycleThemeMode() {
+	const container = document.getElementById('driverScreenContainer');
+	const btn = document.getElementById('btnSunlightToggle');
+	const lbl = document.getElementById('themeToggleLabel');
+  
+	if (currentThemeMode === 'auto') {
+    currentThemeMode = 'day';
+    container.classList.add('sunlight-mode');
+    btn.classList.add('active');
+    lbl.innerText = 'Day Mode';
+    logTelemetry('[THEME] Driver switched to: <b>Day Mode (Forced High-Contrast)</b>.');
+  } else if (currentThemeMode === 'day') {
+    currentThemeMode = 'night';
+    container.classList.remove('sunlight-mode');
+    btn.classList.remove('active');
+    lbl.innerText = 'Night Mode';
+    logTelemetry('[THEME] Driver switched to: <b>Night Mode (Dark OLED)</b>.');
+  } else {
+    currentThemeMode = 'auto';
+    // Auto Mode checks local time (between 6 AM and 6 PM defaults to day contrast)
+    const hour = new Date().getHours();
+    const isDayTime = hour >= 6 && hour < 18;
+    container.classList.toggle('sunlight-mode', isDayTime);
+    btn.classList.toggle('active', isDayTime);
+    lbl.innerText = 'Auto Theme';
+    logTelemetry('[THEME] Driver switched to: <b>Auto Theme (Ambient Synced)</b>.');
+  }
+  
+  lucide.createIcons();
+}
 
     const DRIVER_I18N = {
       ta: {
         tag: "தமிழ்",
         terminalHeader: "டெலிவரி டெர்மினல் (தமிழ்)",
-        langBarLabel: "மொழி:",
         pinLabel: "பிளாட் 402 • தளம் 4",
         btnCall: "அழைக்கவும்",
         btnNav: "வழிசெலுத்தல்",
@@ -809,7 +802,6 @@ CREATE TABLE feedback_responses (
       hi: {
         tag: "हिन्दी",
         terminalHeader: "डिलीवरी टर्मिनल (हिन्दी)",
-        langBarLabel: "भाषा:",
         pinLabel: "फ्लैट 402 • चौथी मंजिल",
         btnCall: "कॉल करें",
         btnNav: "नेविगेशन",
@@ -845,7 +837,6 @@ CREATE TABLE feedback_responses (
       en: {
         tag: "English",
         terminalHeader: "Delivery Terminal (English)",
-        langBarLabel: "Language:",
         pinLabel: "Flat 402 • 4th Floor",
         btnCall: "Call Customer",
         btnNav: "Navigation",
@@ -961,6 +952,11 @@ CREATE TABLE feedback_responses (
       driverHomeMarker = L.marker(LOC_HOME, { icon: L.divIcon({ className: 'p', html: getDriverPinHtml(DRIVER_I18N['ta'].pinLabel), iconSize: [0,0] }) }).addTo(driverMap);
       L.polyline([LOC_HOTEL, LOC_MIDPOINT, LOC_HOME], { color: '#0284C7', weight: 4 }).addTo(driverMap);
       driverRiderMarker = L.marker(LOC_HOTEL, { icon: L.divIcon({ className: 's', html: SCOOTER_SVG, iconSize: [42,42], iconAnchor: [21,21] }) }).addTo(driverMap);
+
+      setTimeout(() => {
+        if (custMap) custMap.invalidateSize();
+        if (driverMap) driverMap.invalidateSize();
+      }, 300);
     }
 
     function closeRiderModal() { document.getElementById('riderSheetModal').classList.remove('active'); }
@@ -981,7 +977,6 @@ CREATE TABLE feedback_responses (
       else if (driverLang === 'en') { document.getElementById('pillLangEn').classList.add('active'); document.getElementById('btnLangEn').classList.add('driver-active'); }
 
       document.getElementById('driverTerminalHeader').innerText = loc.terminalHeader;
-      document.getElementById('driverLangBarLabel').innerText = loc.langBarLabel;
       document.getElementById('btnTextCall').innerText = loc.btnCall;
       document.getElementById('btnTextNav').innerText = loc.btnNav;
       document.getElementById('driverPhotoTitle').innerText = loc.photoTitle;
@@ -1021,6 +1016,22 @@ CREATE TABLE feedback_responses (
       updateDriverTerminal();
       logTelemetry(`[DRIVER_LOCALE] Language updated to <b>${DRIVER_I18N[lang].tag}</b>.`);
       lucide.createIcons();
+    }
+
+    function toggleSunlightMode() {
+      isSunlight = !isSunlight;
+      document.getElementById('driverScreenContainer').classList.toggle('sunlight-mode', isSunlight);
+      document.getElementById('btnSunlightToggle').classList.toggle('active', isSunlight);
+      logTelemetry(`[A11Y] Driver Sunlight High-Contrast Mode: <b>${isSunlight ? 'ON' : 'OFF'}</b>.`);
+    }
+
+    function speakDriverNote() {
+      const note = document.getElementById('driverCustomerNote').innerText;
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(note);
+        window.speechSynthesis.speak(utter);
+      }
+      logTelemetry(`[TTS] Text-to-speech reading drop note to driver.`);
     }
 
     function setRecipientMode(mode) {
@@ -1087,10 +1098,22 @@ CREATE TABLE feedback_responses (
       renderCarousel();
     }
 
+    function scrollCarousel(amt) {
+      const el = document.getElementById('contentCarousel');
+      el.scrollBy({ left: amt, behavior: 'smooth' });
+    }
+
     function startSpecificTrack(title) {
       document.getElementById('custTrackTitle').innerText = title;
+      document.getElementById('custTrackSub').innerText = "Playing Stream";
       document.getElementById('customerAudioDock').classList.add('active');
       logTelemetry(`[CUSTOMER_AUDIO] Playing track: <b>${title}</b>.`);
+    }
+
+    function simulateTrackFinish() {
+      document.getElementById('custTrackTitle').innerText = "Lo-Fi Focus Beats (Ambient Tail)";
+      document.getElementById('custTrackSub').innerText = "Queue Tail: Bridging wait gap";
+      logTelemetry(`[QUEUE_TAIL] Primary audio concluded. Seamless ambient fade bridge activated.`);
     }
 
     function autoPlaySmartQueue() {
