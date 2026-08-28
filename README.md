@@ -12,6 +12,14 @@ ME-TIME™ is an ambient post-order experience engine embedded directly into on-
 
 ---
 
+## 🚀 Live Interactive Showcase & Docs Hub
+
+Experience the live dual-screen simulator, testing orchestrator, PRD, and Swagger API explorer directly in your browser:
+
+👉 **[Launch ME-TIME™ Live Experience Showcase](https://nithishvivekraja.github.io/me-time-engine/)**
+
+---
+
 ## 🌟 Key Capabilities
 
 * **⏱️ Arrival-Aware Time Budgeting:** Dynamically bounds audio queues to real-time logistics SLAs.
