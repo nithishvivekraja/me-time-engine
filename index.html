@@ -19,6 +19,11 @@
   <!-- Marked.js CDN (For Dynamic Markdown Rendering) -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+  <!-- React 18 & Babel Standalone (To render Analytics Dashboard live) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
     :root {
       --primary: #FF5200;
@@ -49,10 +54,11 @@
     .brand-title { font-size: 1.15rem; font-weight: 900; color: #38BDF8; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
     .brand-title span { color: var(--teal); }
 
-    .nav-tabs-group { display: flex; gap: 6px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+    .nav-tabs-group { display: flex; gap: 6px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; }
+    .nav-tabs-group::-webkit-scrollbar { display: none; }
     .nav-tab-btn {
-      padding: 8px 14px; border-radius: 8px; border: none; background: transparent;
-      color: var(--text-muted); font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+      padding: 8px 13px; border-radius: 8px; border: none; background: transparent;
+      color: var(--text-muted); font-size: 0.76rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap;
     }
     .nav-tab-btn:hover { color: #FFF; }
     .nav-tab-btn.active { background: var(--teal); color: #FFF; box-shadow: 0 2px 10px rgba(14, 124, 123, 0.4); }
@@ -321,6 +327,7 @@
 
     <div class="nav-tabs-group">
       <button class="nav-tab-btn active" onclick="switchGlobalTab('sandbox', this)"><i data-lucide="smartphone"></i> Live Dual Sandbox</button>
+      <button class="nav-tab-btn" onclick="switchGlobalTab('analytics', this)"><i data-lucide="bar-chart-3"></i> Analytics Dashboard</button>
       <button class="nav-tab-btn" onclick="switchGlobalTab('case_study', this)"><i data-lucide="file-text"></i> Master Case Study</button>
       <button class="nav-tab-btn" onclick="switchGlobalTab('prd', this)"><i data-lucide="book-open"></i> Product PRD</button>
       <button class="nav-tab-btn" onclick="switchGlobalTab('guide', this)"><i data-lucide="compass"></i> User Guide</button>
@@ -393,7 +400,7 @@
 
         <div class="telemetry-feed" id="telemetryBox">
           [SYS] Hub Online. Pure OSM vector tiles loaded.<br>
-          [DYNAMIC_DOCS] Live Case Study, PRD, User Guide, OpenAPI, and Schema configured.
+          [DYNAMIC_DOCS] Live Case Study, PRD, User Guide, OpenAPI, Schema, and React Analytics Dashboard configured.
         </div>
       </div>
 
@@ -624,28 +631,46 @@
     </div>
   </div>
 
-  <!-- TAB 2: MASTER CASE STUDY (DYNAMICALLY LOADED FROM docs/case_study.md) -->
+  <!-- TAB 2: ENTERPRISE TELEMETRY & ANALYTICS DASHBOARD -->
+  <div class="tab-view-container" id="tab-analytics">
+    <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:18px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h2 style="color:#38BDF8; font-size:1.2rem; margin-bottom:4px;">ME-TIME™ Enterprise Telemetry Dashboard</h2>
+        <p style="color:#94A3B8; font-size:0.82rem;">Real-time operational telemetry, Perceived Wait Satisfaction (PWS), anxiety reduction, and latency SLA monitoring.</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <span style="background:#064E3B; color:#34D399; font-size:0.75rem; font-weight:800; padding:6px 12px; border-radius:10px; display:flex; align-items:center; gap:6px;">
+          <span style="width:7px; height:7px; background:#10B981; border-radius:50%;"></span> Live Telemetry Active
+        </span>
+      </div>
+    </div>
+
+    <!-- Mount Point for React Component -->
+    <div id="analytics-root" style="width:100%;"></div>
+  </div>
+
+  <!-- TAB 3: MASTER CASE STUDY (DYNAMICALLY LOADED FROM docs/case_study.md) -->
   <div class="tab-view-container" id="tab-case_study">
     <div class="doc-page-layout" id="case-study-content-view">
       <p style="color:#94A3B8;">Loading Master Portfolio Case Study (case_study.md)...</p>
     </div>
   </div>
 
-  <!-- TAB 3: PRD (DYNAMICALLY LOADED FROM docs/PRD.md) -->
+  <!-- TAB 4: PRD (DYNAMICALLY LOADED FROM docs/PRD.md) -->
   <div class="tab-view-container" id="tab-prd">
     <div class="doc-page-layout" id="prd-content-view">
       <p style="color:#94A3B8;">Loading full Product Requirements Document (PRD.md)...</p>
     </div>
   </div>
 
-  <!-- TAB 4: USER GUIDE (DYNAMICALLY LOADED FROM docs/user_guide.md) -->
+  <!-- TAB 5: USER GUIDE (DYNAMICALLY LOADED FROM docs/user_guide.md) -->
   <div class="tab-view-container" id="tab-guide">
     <div class="doc-page-layout" id="guide-content-view">
       <p style="color:#94A3B8;">Loading full End-User Guide (user_guide.md)...</p>
     </div>
   </div>
 
-  <!-- TAB 5: SWAGGER / API EXPLORER -->
+  <!-- TAB 6: SWAGGER / API EXPLORER -->
   <div class="tab-view-container" id="tab-swagger">
     <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:16px;">
       <h2 style="color:#38BDF8; margin-bottom:6px;">ME-TIME™ OpenAPI 3.1 Interactive Explorer</h2>
@@ -654,7 +679,7 @@
     <div id="swagger-ui-container"></div>
   </div>
 
-  <!-- TAB 6: SCHEMA DDL (DYNAMICALLY LOADED FROM docs/schema.sql) -->
+  <!-- TAB 7: SCHEMA DDL (DYNAMICALLY LOADED FROM docs/schema.sql) -->
   <div class="tab-view-container" id="tab-schema">
     <div class="doc-page-layout">
       <h1>Relational Database Schema (PostgreSQL DDL)</h1>
@@ -665,7 +690,7 @@
     </div>
   </div>
 
-  <!-- TAB 7: STRATEGY PITCH DECK -->
+  <!-- TAB 8: STRATEGY PITCH DECK -->
   <div class="tab-view-container" id="tab-deck">
     <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:18px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
       <div>
@@ -735,6 +760,10 @@
         }, 150);
       } else if (tabKey === 'deck') {
         lucide.createIcons();
+      } else if (tabKey === 'analytics') {
+        if (window.renderAnalyticsDashboard) {
+          window.renderAnalyticsDashboard();
+        }
       } else {
         loadDynamicDocs(tabKey);
       }
@@ -1289,6 +1318,130 @@
         presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
         layout: "BaseLayout"
       });
+    };
+  </script>
+
+  <!-- REACT ANALYTICS DASHBOARD ENGINE -->
+  <script type="text/babel">
+    let isDashboardRendered = false;
+
+    window.renderAnalyticsDashboard = function() {
+      if (isDashboardRendered) return;
+      
+      const container = document.getElementById('analytics-root');
+      if (!container) return;
+
+      const AnalyticsView = () => {
+        const [activeTenant, setActiveTenant] = React.useState('all');
+
+        const kpis = [
+          { label: 'Perceived Wait Satisfaction (PWS)', val: '76.4%', change: '+44.4%', good: true, sub: 'Target: ≥ 75.0%' },
+          { label: 'Manual Tracker Refreshes', val: '1.8 / ord', change: '-62.5%', good: true, sub: 'Baseline: 4.8 / order' },
+          { label: 'In-Wait Driver Inbound Calls', val: '0.12 / ord', change: '-68.4%', good: true, sub: 'Baseline: 0.38 / order' },
+          { label: 'p95 Recommendation Latency', val: '142 ms', change: 'PASS', good: true, sub: 'SLA Budget: ≤ 300 ms' }
+        ];
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', color: '#F8FAFC' }}>
+            {/* TENANT TOGGLE ROW */}
+            <div style={{ display: 'flex', gap: '8px', background: '#111827', padding: '6px', borderRadius: '12px', border: '1px solid #1E293B', width: 'fit-content' }}>
+              <button 
+                onClick={() => setActiveTenant('all')}
+                style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: activeTenant === 'all' ? '#0E7C7B' : 'transparent', color: '#FFF', fontWeight: '700', fontSize: '0.76rem', cursor: 'pointer' }}>
+                ◆ All Integrations
+              </button>
+              <button 
+                onClick={() => setActiveTenant('swiggy')}
+                style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: activeTenant === 'swiggy' ? '#0E7C7B' : 'transparent', color: '#FFF', fontWeight: '700', fontSize: '0.76rem', cursor: 'pointer' }}>
+                🍔 Swiggy India
+              </button>
+              <button 
+                onClick={() => setActiveTenant('rideco')}
+                style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: activeTenant === 'rideco' ? '#0E7C7B' : 'transparent', color: '#FFF', fontWeight: '700', fontSize: '0.76rem', cursor: 'pointer' }}>
+                🚗 RideCo
+              </button>
+            </div>
+
+            {/* KPI METRIC CARDS */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+              {kpis.map((kpi, idx) => (
+                <div key={idx} style={{ background: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '18px 20px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#94A3B8', marginBottom: '8px' }}>{kpi.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#F8FAFC' }}>{kpi.val}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: '800', color: kpi.good ? '#34D399' : '#EF4444' }}>{kpi.change}</div>
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748B', marginTop: '6px' }}>{kpi.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* TELEMETRY SECTIONS */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '16px' }}>
+              {/* CARD 1: ATTENTION CONVERSION */}
+              <div style={{ background: '#0F172A', border: '1px solid #1E293B', borderRadius: '18px', padding: '22px' }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#38BDF8', marginBottom: '14px' }}>User Attention Allocation (24-Min Wait)</h3>
+                
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: '700', marginBottom: '4px' }}>
+                    <span>Intentional Rest / Audio Engagement</span>
+                    <span style={{ color: '#34D399' }}>68% (Target State)</span>
+                  </div>
+                  <div style={{ width: '100%', height: '10px', background: '#1E293B', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ width: '68%', height: '100%', background: '#0E7C7B' }}></div>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: '700', marginBottom: '4px' }}>
+                    <span>Social Media Doom-Scrolling</span>
+                    <span style={{ color: '#94A3B8' }}>22% (Down from 58%)</span>
+                  </div>
+                  <div style={{ width: '100%', height: '10px', background: '#1E293B', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ width: '22%', height: '100%', background: '#64748B' }}></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: '700', marginBottom: '4px' }}>
+                    <span>Anxious Map Staring</span>
+                    <span style={{ color: '#38BDF8' }}>10% (Down from 23%)</span>
+                  </div>
+                  <div style={{ width: '100%', height: '10px', background: '#1E293B', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ width: '10%', height: '100%', background: '#0284C7' }}></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CARD 2: RECENT QUALITATIVE VERBATIMS */}
+              <div style={{ background: '#0F172A', border: '1px solid #1E293B', borderRadius: '18px', padding: '22px' }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#38BDF8', marginBottom: '14px' }}>Progressive Feedback & Comments Stream</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ background: '#111827', border: '1px solid #1E293B', borderRadius: '10px', padding: '10px 12px', fontSize: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', color: '#34D399', marginBottom: '2px' }}>
+                      <span>⚡ short_fine (Tech Podcast)</span>
+                      <span style={{ color: '#64748B', fontWeight: '600' }}>2 mins ago</span>
+                    </div>
+                    <div style={{ color: '#CBD5E1' }}>"The 12-minute AI brief finished right as the driver reached the gate. Didn't look at the map once."</div>
+                  </div>
+
+                  <div style={{ background: '#111827', border: '1px solid #1E293B', borderRadius: '10px', padding: '10px 12px', fontSize: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', color: '#F59E0B', marginBottom: '2px' }}>
+                      <span>⏳ long_frustrating (Traffic Delay)</span>
+                      <span style={{ color: '#64748B', fontWeight: '600' }}>14 mins ago</span>
+                    </div>
+                    <div style={{ color: '#CBD5E1' }}>"Traffic delayed by 10 mins; the bonus music track helped, but food was slightly cold."</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(container);
+      root.render(<AnalyticsView />);
+      isDashboardRendered = true;
     };
   </script>
 </body>
