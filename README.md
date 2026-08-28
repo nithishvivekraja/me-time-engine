@@ -44,7 +44,16 @@ When a customer places an order on food delivery platforms (Swiggy, Zomato, Door
 
 ---
 
-## 3. Key Feature Specifications
+## 3. Executive Strategy Presentation & Artifacts
+
+* 🖥️ **[Interactive Web Deck (Live Showcase)](https://nithishvivekraja.github.io/me-time-engine/)** *(Select the "Pitch Deck" tab in the web hub)*
+* 📄 **[Open Strategy Deck in Browser (Direct PDF View)](https://nithishvivekraja.github.io/me-time-engine/slides/Me-Time_Strategy_Deck.pdf)**
+* 📥 **[Download Strategy Deck (PDF)](https://raw.githubusercontent.com/nithishvivekraja/me-time-engine/main/slides/Me-Time_Strategy_Deck.pdf)**
+* 📑 **[Source Presentation (.pptx)](slides/Me-Time_Strategy_Delivery%20Platform.pptx?raw=true)**
+
+---
+
+## 4. Key Feature Specifications
 
 ### 📱 Customer Experience Hub
 1. **Dynamic Time-Budgeting:** Computes exact countdown windows and surfaces time-matched audio (Podcasts, Lo-Fi Music, News Briefs, Mini-Games).
@@ -66,7 +75,7 @@ When a customer places an order on food delivery platforms (Swiggy, Zomato, Door
 
 ---
 
-## 4. Repository Structure & Documentation Index
+## 5. Repository Structure & Documentation Index
 
 ```text
 me-time-engine/
@@ -79,11 +88,14 @@ me-time-engine/
 │   ├── user_guide.md                    # Platform Operations & End-User Manual
 │   ├── openapi.json                     # OpenAPI 3.1 REST Gateway Contracts
 │   └── schema.sql                       # PostgreSQL Multi-Tenant Relational DDL
+└── slides/
+    ├── Me-Time_Strategy_Deck.pdf        # Production Strategy PDF
+    └── Me-Time_Strategy_Delivery Platform.pptx # Editable Source Presentation
 ```
 
 ---
 
-## 5. Quick Start & Local Development
+## 6. Quick Start & Local Development
 
 ### Running the Live Interactive Sandbox
 No build step or dependencies required. Open `index.html` in any modern web browser or serve locally:
@@ -99,11 +111,11 @@ npx serve .
 Open `http://localhost:8080` to interact with:
 * The **Dual-Screen Live Simulator** (Customer Audio Player + Driver Terminal).
 * The **Logistics Event Controls** (Traffic Delays, Proximity Geofencing, Drop Flags).
-* The **Embedded Documentation Explorer** (Case Study, PRD, User Guide, OpenAPI, Schema).
+* The **Embedded Documentation Explorer** (Case Study, PRD, User Guide, OpenAPI, Schema, Pitch Deck).
 
 ---
 
-## 6. Author & Product Architecture
+## 7. Author & Product Architecture
 
 **Nithish** — Product Lead & Systems Architect  
 * **Live Sandbox:** [https://nithishvivekraja.github.io/me-time-engine/](https://nithishvivekraja.github.io/me-time-engine/)  
