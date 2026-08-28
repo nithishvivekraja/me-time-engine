@@ -62,7 +62,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 4. **Final-Mile Handoff, Linguistic & Safety Friction:** Gate navigation breakdowns, unannounced door arrivals, and safety risks.
 5. **Feedback Blending & Rating Contamination:** The blind spot where wait anxiety contaminates culinary and driver ratings.
 
-### 1. Temporal Uncertainty & Compulsive Map Tracking (The "Dead Wait")
+##### A. Temporal Uncertainty & Compulsive Map Tracking (The "Dead Wait")
 
 * **Problem Statement:** When an order is confirmed, users enter an unmanaged 20–45 minute waiting window. Dynamic ETAs fluctuate without granular context (kitchen vs. traffic vs. rider dispatch), triggering temporal anxiety and compulsive screen monitoring.
 
@@ -75,7 +75,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
   * **Delivery Partners / Driver App:** Receive impatient customer chat pings and premature calls while navigating heavy traffic.
   * **Restaurant Reputation:** Customers assume the restaurant is taking too long to prepare their food if the tracking pin lingers at the kitchen, damaging kitchen goodwill.
 
-### 2. Attention Fragmentation & Unproductive Multitasking
+##### B. Attention Fragmentation & Unproductive Multitasking
 
 * **Problem Statement:** During the delivery wait, 94% of users multitask, but delivery platforms offer zero structured waiting utilities. Consequently, 58% fall into shallow social media doom-scrolling, while only 3% engage in intentional rest or productive focus.
 
@@ -88,7 +88,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
   * **Delivery Partners / Driver App:** Encounter extended doorstep dwell times ($>3\text{ minutes}$) waiting outside for distracted customers to respond to arrival alerts.
   * **Restaurant Reputation:** Freshly prepared hot meals (crispy fries, thin-crust pizza) lose heat and texture while waiting at the door, leading to unfair taste complaints.
 
-### 3. Logistics Slippage & Unexplained Delay Escalation
+##### C. Logistics Slippage & Unexplained Delay Escalation
 
 * **Problem Statement:** Operational bottlenecks—such as kitchen rushes, road congestion, or monsoon downpours—inevitably cause $+10\text{ to }15\text{-minute}$ delivery delays[cite: 1]. Existing platforms update ETAs silently without proactive explanations or engaging context.
 
@@ -101,7 +101,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
   * **Delivery Partners / Driver App:** Face unearned hostility and low customer ratings upon delivery, despite navigating dangerous weather or heavy traffic hazards[cite: 1].
   * **Restaurant Reputation:** Receives direct 1-star reviews on social media for "slow preparation," even when the delay was purely road congestion.
 
-### 4. Final-Mile Handoff, Linguistic & Safety Friction
+##### D. Final-Mile Handoff, Linguistic & Safety Friction
 
 * **Problem Statement:** The final 50–100 meters of fulfillment suffer from a breakdown in communication[cite: 1]. Non-English-speaking delivery partners struggle to decipher complex English checkout notes or gate instructions, while unannounced arrivals interrupt remote work meetings or trigger barking pets.
 
@@ -114,7 +114,7 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
   * **Delivery Partners / Driver App:** Suffer wasted vehicle fuel, missed delivery incentives (SLAs), and physical safety risks (e.g., unrestrained guard dogs or hostile building security)[cite: 1].
   * **Restaurant Reputation:** Negative doorstep friction leaves a sour final impression that ruins the overall dining and brand experience.
 
-### 5. Feedback Blending & Rating Contamination (The PWS Blind Spot)
+##### E. Feedback Blending & Rating Contamination (The PWS Blind Spot)
 
 * **Problem Statement:** Standard post-delivery 5-star rating prompts ask a single blended question: *"How was your order?"* This conflates **kitchen food taste**, **rider transit conduct**, and **wait-time perception** into one contaminated score.
 
