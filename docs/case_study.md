@@ -63,6 +63,7 @@ ME-TIME is built as a lightweight, read-only client SDK ($\le 150\text{ KB}$ gzi
         │                                             (Audible / Spotify)
         ├──► [ Consumer App Surface ] (Ambient Audio + Live ETA Tracker)
         └──► [ Driver App Terminal ]  (Multilingual Doorstep Fulfillment)
+```
 
 | Architecture Quality Attribute | Technical SLA Specification | Production Implementation Rule |
 | :--- | :---: | :--- |
@@ -105,9 +106,9 @@ ME-TIME is built as a lightweight, read-only client SDK ($\le 150\text{ KB}$ gzi
 
 ## 6. Project Artifacts & Repository Links
 
-* 🚀 **Live Interactive Sandbox Hub:** [https://nithishvivekraja.github.io/me-time-engine/](https://nithishvivekraja.github.io/me-time-engine/)
-* 📘 **Consolidated Product Requirements Document (PRD):** `docs/PRD.md`
-* 📗 **End-User & Driver Operations Manual:** `docs/user_guide.md`
-* 📙 **OpenAPI 3.1 REST Contracts:** `docs/openapi.json`
-* 🗄️ **PostgreSQL Relational Schema:** `docs/schema.sql`
-* 📊 **Enterprise Telemetry Dashboard Component:** `ME-TIME_Analytics_Dashboard.jsx`
+🚀 Live Interactive Sandbox Hub: https://nithishvivekraja.github.io/me-time-engine/  
+📘 Consolidated Product Requirements Document (PRD): docs/PRD.md  
+📗 End-User & Driver Operations Manual: docs/user_guide.md  
+📙 OpenAPI 3.1 REST Contracts: docs/openapi.json  
+🗄️ PostgreSQL Relational Schema: docs/schema.sql  
+📊 Enterprise Telemetry Dashboard Component: ME-TIME_Analytics_Dashboard.jsx  
