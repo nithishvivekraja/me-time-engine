@@ -140,11 +140,11 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 ### 1.3 Goals & Success Metrics
 | Metric Category | Target KPI | Baseline | Measurement Source |
 | :--- | :--- | :--- | :--- |
-| **User Anxiety** | $\ge 40\%$ reduction in map refresh frequency per order | 4.8 refreshes/order | Client telemetry logs on `/experience`[cite: 1] |
-| **Wait Perception** | $\ge 75\%$ positive Perceived Wait Satisfaction (PWS) score[cite: 1, 2] | 32% positive | 1-tap post-delivery survey (`short_fine`)[cite: 1, 2] |
-| **Engagement** | $\ge 35\%$ 1-tap session initiation rate | N/A (New feature) | CTA analytics (`btn-hero-play`, `btn-explore`)[cite: 1] |
+| **User Anxiety** | $\ge 40\%$ reduction in map refresh frequency per order | 4.8 refreshes/order | Client telemetry logs on `/experience` |
+| **Wait Perception** | $\ge 75\%$ positive Perceived Wait Satisfaction (PWS) score | 32% positive | 1-tap post-delivery survey (`short_fine`) |
+| **Engagement** | $\ge 35\%$ 1-tap session initiation rate | N/A (New feature) | CTA analytics (`btn-hero-play`, `btn-explore`) |
 | **Fulfillment Friction** | $\ge 30\%$ reduction in driver-to-customer phone calls | 0.38 calls/order | Driver communication gateway logs |
-| **System Performance**| $\le 300\text{ ms}$ p95 API response time on 4G networks | N/A | Multi-tenant API gateway telemetry[cite: 1] |
+| **System Performance**| $\le 300\text{ ms}$ p95 API response time on 4G networks | N/A | Multi-tenant API gateway telemetry |
 
 ---
 
