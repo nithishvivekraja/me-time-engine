@@ -150,26 +150,14 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 
 ## 2. User Personas & User Journeys
 
-### 2.1 Target Personas
+### 2.1 Target Personas Matrix
 
-┌───────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────┐
-│  Persona A: The WFH Pro   │ │ Persona B: Evening Unwinder│ │ Persona C: Delivery Rider │
-├───────────────────────────┤ ├───────────────────────────┤ ├───────────────────────────┤
-│ • Focus: Busy schedule    │ │ • Focus: Relaxation       │ │ • Focus: Fast handoffs    │
-│ • Need: News/Tech briefs  │ │ • Need: Music/Tamil hits  │ │ • Need: Native language UI│
-│ • Pain: Noisy arrivals    │ │ • Pain: Tracking stress   │ │ • Pain: Hard-to-find gates│
-└───────────────────────────┘ └───────────────────────────┘ └───────────────────────────┘
-
-
-1. **The Work-From-Home Professional (Persona A):**
-   * *Profile:* Tech professional ordering lunch between back-to-back virtual meetings[cite: 1].
-   * *Needs:* Wants a short tech or finance brief that ends cleanly before food arrival without requiring active screen engagement[cite: 1].
-2. **The Evening Relaxer (Persona B):**
-   * *Profile:* Consumer ordering dinner after work, listening to music or regional podcasts[cite: 1].
-   * *Needs:* Wants a hands-free ambient playlist (Tamil hits, lo-fi beats) that automatically lowers volume at the door[cite: 1].
-3. **The Delivery Partner (Persona C):**
-   * *Profile:* Two-wheeler gig partner navigating dense urban apartment complexes[cite: 1].
-   * *Needs:* Needs clear navigation and customer notes in their native language (Tamil, Hindi, English) along with verified entrance photos[cite: 1].
+| Attribute | Persona A: The WFH Professional | Persona B: The Evening Unwinder | Persona C: The Delivery Partner |
+| :--- | :--- | :--- | :--- |
+| **Primary Goal** | Stay productive without missing food handoff | Decompress after work without screen fatigue | Complete drops quickly and maximize earnings |
+| **Content Preference** | Tech podcasts, financial digests, short news | Regional playlists, lo-fi beats, stand-up comedy | N/A (Consumes navigation and drop directives) |
+| **Key Frustration** | Disruptive doorbells during meetings; anxious tracking | Screen doom-scrolling while waiting; erratic ETAs | Unclear gate landmarks; unreadable English notes |
+| **Platform Touchpoint** | 1-Tap Auto-Play, proximity audio ducking | Explore Moods drawer, dynamic delay extension | Multilingual terminal, landmark card, instant pay |
 
 ---
 
@@ -177,106 +165,81 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 
 ME-TIME runs as a lightweight, read-only client SDK ($\le 150\text{ KB}$ gzipped) integrated into the host platform’s mobile apps and web tracking surfaces.
 
-┌───────────────────────────┐                ┌────────────────────────────┐
-│   HOST PLATFORM BACKEND   │                │   CONTENT PARTNER GATEWAY  │
-│      (Swiggy/Zomato)      │                │ (Audible, Spotify, Reuters)│
-└─────────────┬─────────────┘                └─────────────┬──────────────┘
-│ (Order Lifecycle Webhooks)                 │ (Catalog Sync)
-▼                                            ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    ME-TIME ENGINE (MULTI-TENANT API)                    │
-│    - Time-Budget Matcher  - Dynamic Delay Extender  - Locale Translator │
-└────────────────────┬─────────────────────────────┬──────────────────────┘
-│                             │
-▼                             ▼
-┌───────────────────────────┐ ┌───────────────────────────┐
-│   CUSTOMER APP SURFACE    │ │   DRIVER APP TERMINAL     │
-│ (Ambient Audio + Live ETA)│ │(Multilingual Fulfillment) │
-└───────────────────────────┘ └───────────────────────────┘
+### 3.1 Data Flow Architecture
 
+| Layer | Component | Functionality & Responsibilities |
+| :--- | :--- | :--- |
+| **Upstream Hosts** | Host Platform Backend *(Swiggy, Zomato)* | Emits order lifecycle webhooks (`order_created`, `eta_updated`, `delivered`). |
+| **Content Gateways** | Partner Content APIs *(Audible, Spotify, Reuters)* | Supplies real-time metadata, deep-links, and stream duration parameters. |
+| **Core Engine** | **ME-TIME Multi-Tenant Gateway** | Evaluates time-budget matching, manages delay auto-appends, and localizes notes. |
+| **Client Surfaces** | Customer Surface & Driver Terminal | Renders audio player HUD and localized drop instructions on respective client apps. |
 
 ---
 
 ## 4. Functional Requirements & Feature Specifications
 
 ### 4.1 Feature 1: Time-Budgeted Ambient Recommendation Engine
-* **Description:** Ingests the estimated delivery window and queries content partner catalogs (Audible, Spotify, Bloomberg, local creators) to construct an exact-length audio queue[cite: 1].
+* **Description:** Ingests the estimated delivery window and queries content partner catalogs (Audible, Spotify, Bloomberg, local creators) to construct an exact-length audio queue.
 * **Business Logic:**
   $$\text{Target Audio Duration} \le \text{Live ETA} - \text{Buffer (2 mins)}$$
 * **User Experience:**
-  * **1-Tap Instant Play (`btn-hero-play`):** Automatically starts the top-ranked time-budgeted track[cite: 1].
-  * **Explore Moods (`btn-explore-glow`):** Expands the dual-axis drawer for category switching (**Podcasts**, **Music**, **Short News**, **Games**)[cite: 1].
-  * **Background Streaming:** Media continues playing smoothly when the user locks their device or switches apps using OS-level background audio controls (`AVAudioSession` / `MediaSession`)[cite: 1].
+  * **1-Tap Instant Play (`btn-hero-play`):** Automatically starts the top-ranked time-budgeted track.
+  * **Explore Moods (`btn-explore-glow`):** Expands the dual-axis drawer for category switching (**Podcasts**, **Music**, **Short News**, **Games**).
+  * **Background Streaming:** Media continues playing smoothly when the user locks their device or switches apps using OS-level background audio controls (`AVAudioSession` / `MediaSession`).
 
 ### 4.2 Feature 2: Logistics Slippage & Dynamic Queue Auto-Extension
-* **Description:** Manages unexpected delays (e.g., kitchen bottlenecks, road traffic, monsoon showers) without increasing user anxiety[cite: 1].
+* **Description:** Manages unexpected delays (e.g., kitchen bottlenecks, road traffic, monsoon showers) without increasing user anxiety.
 * **Business Logic:**
-  * When an `eta_updated` event introduces a delay $\ge 8\text{ minutes}$, the engine transitions the customer UI state to `DELAY_MODE`[cite: 1].
-  * Automatically fetches and appends a companion bonus track to match the extended window (e.g., $+10\text{m}$ bonus brief) without interrupting active playback[cite: 1].
+  * When an `eta_updated` event introduces a delay $\ge 8\text{ minutes}$, the engine transitions the customer UI state to `DELAY_MODE`.
+  * Automatically fetches and appends a companion bonus track to match the extended window (e.g., $+10\text{m}$ bonus brief) without interrupting active playback.
 * **User Interface:**
-  * Status indicator turns from green to red (`CONGESTED`)[cite: 1].
-  * Displays a plain-language delay callout: *"Traffic Delay (+10m): Extended bonus track auto-queued"*[cite: 1].
+  * Status indicator turns from green to red (`CONGESTED`).
+  * Displays a plain-language delay callout: *"Traffic Delay (+10m): Extended bonus track auto-queued"*.
 
 ### 4.3 Feature 3: Proximity Geofencing, Audio Ducking & 3D Knock Handoff
-* **Description:** Manages the final-mile transition when the delivery partner reaches the destination geofence[cite: 1].
-* **Trigger Condition:** Driver GPS coordinates breach the $<50\text{m}$ radius of the delivery pin[cite: 1].
+* **Description:** Manages the final-mile transition when the delivery partner reaches the destination geofence.
+* **Trigger Condition:** Driver GPS coordinates breach the $<50\text{m}$ radius of the delivery pin.
 * **Execution Sequence:**
-  1. Active background audio gain node smoothly attenuates (ducks) from 100% to 10% volume over $600\text{ ms}$[cite: 1].
-  2. The customer app surfaces the **3D Knocking HUD**[cite: 1].
-  3. Fires synchronized acoustic double-knocks and haptic vibration pulses (`navigator.vibrate([100, 50, 120])`)[cite: 1].
+  1. Active background audio gain node smoothly attenuates (ducks) from 100% to 10% volume over $600\text{ ms}$.
+  2. The customer app surfaces the **3D Knocking HUD**.
+  3. Fires synchronized acoustic double-knocks and haptic vibration pulses (`navigator.vibrate([100, 50, 120])`).
 
-### 4.4 Feature 4: Multilingual Delivery Partner Terminal
-* **Description:** Provides delivery partners with an on-device language selector and dynamic translation for drop-off notes and navigation[cite: 1].
-* **Supported Locales:** Tamil (`ta`), Hindi (`hi`), English (`en`)[cite: 1].
+### 4.4 Feature 4: Localized Delivery Partner Fulfillment Terminal
+* **Description:** Provides delivery partners with an on-device language selector and dynamic translation for drop-off notes and navigation.
+* **Supported Locales:** Tamil (`ta`), Hindi (`hi`), English (`en`).
 * **UI Components:**
-  * **On-Device Language Switcher:** A 1-tap pill bar (`pillLangTa`, `pillLangHi`, `pillLangEn`) located in the header for real-time translation[cite: 1].
-  * **Visual Landmark Card:** Shows verified entrance photos and gate landmarks uploaded by the customer[cite: 1].
+  * **On-Device Language Switcher:** A 1-tap pill bar (`pillLangTa`, `pillLangHi`, `pillLangEn`) located in the header for real-time translation.
+  * **Visual Landmark Card:** Shows verified entrance photos and gate landmarks uploaded by the customer.
   * **Contextual Caution Badges:**
-    * `Beware of Dog 🐕`: *"எச்சரிக்கை: வாசலில் நாய் உள்ளது! கேட்டில் நிற்கவும்."*[cite: 1]
-    * `Gate Drop / Away 📦`: *"தொடர்பற்ற டெலிவரி: செக்யூரிட்டியிடம் ஒப்படைக்கவும்."*[cite: 1]
+    * `Beware of Dog 🐕`: *"எச்சரிக்கை: வாசலில் நாய் உள்ளது! கேட்டில் நிற்கவும்."*
+    * `Gate Drop / Away 📦`: *"தொடர்பற்ற டெலிவரி: செக்யூரிட்டியிடம் ஒப்படைக்கவும்."*
     * `Do Not Ring Bell 🤫`: *"அமைதியான டெலிவரி: குழந்தை தூங்குகிறது. பெல் அடிக்க வேண்டாம்."*
-  * **Instant Payout Summary:** Displays an itemized earnings receipt (Base Pay + On-Time Bonus + Tip) with real-time wallet settlement immediately upon marking an order delivered[cite: 1].
+  * **Instant Payout Summary:** Displays an itemized earnings receipt (Base Pay + On-Time Bonus + Tip) with real-time wallet settlement immediately upon marking an order delivered.
 
 ### 4.5 Feature 5: 1-Tap Perceived Wait Satisfaction (PWS) Survey
-* **Description:** Captures post-order user sentiment to evaluate wait perception[cite: 1].
+* **Description:** Captures post-order user sentiment to evaluate wait perception.
 * **Options:**
-  * ⚡ **"Felt short & entertaining"** (`short_fine`)[cite: 1]
-  * ⏳ **"Felt long & frustrating"** (`long_frustrating`)[cite: 1]
-* **Constraint:** Idempotent single-write recording via `POST /v1/orders/{orderId}/feedback`[cite: 1].
+  * ⚡ **"Felt short & entertaining"** (`short_fine`)
+  * ⏳ **"Felt long & frustrating"** (`long_frustrating`)
+* **Constraint:** Idempotent single-write recording via `POST /v1/orders/{orderId}/feedback`.
 
 ---
 
 ## 5. End-to-End Visual Workflow & Component Markup Matrix
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      LIFECYCLE STATE & MARKUP MAPPING                       │
-├─────────┬──────────────────────────┬──────────────────────────┬─────────────┤
-│ Step    │ Customer Interface       │ Driver Terminal          │ Trigger     │
-├─────────┼──────────────────────────┼──────────────────────────┼─────────────┤
-│ Step 1  │ [C1] Status Card (28m)   │ [D1] Language Switcher   │ Webhook:    │
-│ (0-5m)  │ [C2] Hero "Play Now" CTA │ [D2] Pickup Dispatch Card│ order_create│
-│         │                          │ [D3] Preparation SLA     │             │
-├─────────┼──────────────────────────┼──────────────────────────┼─────────────┤
-│ Step 2  │ [C3] Live Scooter Pin    │ [D4] Localized Turn HUD  │ Telemetry:  │
-│ (5-20m) │ [C4] Floating Media Dock │ [D5] Landmark & Photo    │ GPS Polling │
-├─────────┼──────────────────────────┼──────────────────────────┼─────────────┤
-│ Step 3  │ [C5] Congestion Alert    │ [D6] Reroute Notice      │ Webhook:    │
-│ (Delay) │ [C6] Bonus Track Queued  │                          │ eta_update  │
-├─────────┼──────────────────────────┼──────────────────────────┼─────────────┤
-│ Step 4  │ [C7] 3D Knock HUD        │ [D7] Geofence Arrival    │ Geofence:   │
-│ (<50m)  │ [C8] Audio Ducking (10%) │ [D8] Caution Badges      │ <50m Radius │
-│         │                          │ [D9] Complete Action     │             │
-├─────────┼──────────────────────────┼──────────────────────────┼─────────────┤
-│ Step 5  │ [C9] 1-Tap PWS Feedback  │ [D10] Earnings Breakdown │ Webhook:    │
-│ (Done)  │                          │ [D11] Wallet Settlement  │ delivered   │
-└─────────┴──────────────────────────┴──────────────────────────┴─────────────┘
-
+| Lifecycle Step | Window / Trigger | Customer App Interface State | Driver Terminal State | System Event / Action |
+| :--- | :--- | :--- | :--- | :--- |
+| **Step 1: Preparation** | 0 – 10 Mins | • Order status: Cooking<br>• Hero card: "Play Now" CTA<br>• Initial ETA displayed | • Order assigned notification<br>• Restaurant pickup navigation<br>• Meal prep countdown timer | Webhook: `order_created`<br>Calculates initial time-budget. |
+| **Step 2: In-Transit** | 10 – 30 Mins | • Active scooter map pin<br>• Floating audio player active<br>• Background audio streaming | • Turn-by-turn navigation HUD<br>• Customer gate landmark photo<br>• Localized drop instructions | Telemetry: GPS Polling<br>Syncs rider coordinates to map. |
+| **Step 3: Slippage / Delay** | Dynamic ($+10\text{m}$) | • Red status: Traffic Delay<br>• Bonus track auto-appended<br>• ETA counter incremented | • Congestion alert banner<br>• Dynamic re-route suggestion<br>• Delivery incentive preserved | Webhook: `eta_updated`<br>Appends companion track. |
+| **Step 4: Doorstep Arrival** | Geofence ($<50\text{m}$) | • Audio volume ducked to 10%<br>• 3D Knocking HUD surfaces<br>• Double-knock vibration fired | • Arrival confirmation trigger<br>• Active caution badges rendered<br>• Direct 1-tap call button | Geofence: Proximity Breach<br>Executes audio ducking sequence. |
+| **Step 5: Fulfillment** | Mark Delivered | • Audio playback concludes<br>• 1-Tap PWS modal displayed<br>• Order marked completed | • Delivery completed screen<br>• Itemized payout summary<br>• Instant wallet settlement | Webhook: `delivered`<br>Logs feedback idempotently. |
 
 ---
 
 ## 6. Non-Functional Requirements (NFRs)
 
-* **Performance & Latency:** The composite experience endpoint (`GET /v1/orders/{orderId}/experience`) must respond within $\le 300\text{ ms}$ at p95 under standard mobile network conditions[cite: 1].
+* **Performance & Latency:** The composite experience endpoint (`GET /v1/orders/{orderId}/experience`) must respond within $\le 300\text{ ms}$ at p95 under standard mobile network conditions.
 * **Bundle Footprint:** The embedded client SDK must not exceed $\le 150\text{ KB}$ gzipped.
 * **Fail-Safe & High Availability:** If ME-TIME services fail, the host application must silently fall back to standard map tracking without displaying error dialogs to the user.
 * **Security & Privacy:** ME-TIME operates on a zero-PII storage policy. Customer identifiers are anonymized using salted cryptographic hashes, and exact street coordinates are scrubbed after order completion.
@@ -285,14 +248,14 @@ ME-TIME runs as a lightweight, read-only client SDK ($\le 150\text{ KB}$ gzipped
 
 ## 7. API Contracts & Database Schema Reference
 
-### 7.1 Key Endpoints
-* `POST /v1/webhooks/order-events`: Ingests real-time events (`order_created`, `eta_updated`, `delivered`)[cite: 1].
-* `GET /v1/orders/{orderId}/experience`: Returns composite wait payload and time-budgeted content playlists[cite: 1].
-* `POST /v1/orders/{orderId}/feedback`: Records single-tap PWS ratings[cite: 1].
+### 7.1 Key REST Endpoints
+* `POST /v1/webhooks/order-events`: Ingests real-time events (`order_created`, `eta_updated`, `delivered`).
+* `GET /v1/orders/{orderId}/experience`: Returns composite wait payload and time-budgeted content playlists.
+* `POST /v1/orders/{orderId}/feedback`: Records single-tap PWS ratings.
 
-### 7.2 Relational Data Entities
-* `tenants`: Multi-tenant platform isolation[cite: 1].
-* `orders`: Shadow order states, ETAs, and drop-off instruction flags[cite: 1].
-* `delay_events`: Audit trail for logistics slippage and plain-language delay explanations[cite: 1].
-* `content_items`: Catalog metadata, durations, streaming URLs, and tags[cite: 1].
-* `feedback_responses`: Post-order satisfaction scores (`short_fine` vs. `long_frustrating`)[cite: 1].
+### 7.2 Relational Data Schema Entities
+* `tenants`: Multi-tenant platform isolation.
+* `orders`: Shadow order states, ETAs, and drop-off instruction flags.
+* `delay_events`: Audit trail for logistics slippage and plain-language delay explanations.
+* `content_items`: Catalog metadata, durations, streaming URLs, and tags.
+* `feedback_responses`: Post-order satisfaction scores (`short_fine` vs. `long_frustrating`).
