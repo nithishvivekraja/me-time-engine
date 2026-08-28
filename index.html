@@ -12,8 +12,8 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Chart.js CDN (For Rich Animated Visual Analytics) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js CDN (For Animated Graphs, Spikes, Line & Donut Charts) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- Swagger UI CDN -->
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
@@ -314,20 +314,20 @@
 
     #swagger-ui-container { background: #FFF; border-radius: 16px; padding: 12px; }
 
-    /* ENTERPRISE COMMAND CENTER STYLES */
-    .metric-card-deluxe {
-      background: linear-gradient(145deg, #0F172A 0%, #111C38 100%);
+    /* ENTERPRISE VISUAL COCKPIT STYLES */
+    .cockpit-card-deluxe {
+      background: linear-gradient(145deg, #0F172A 0%, #0B132B 100%);
       border: 1px solid #1E293B;
       border-radius: 18px;
-      padding: 18px 20px;
+      padding: 20px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-      transition: transform 0.2s, border-color 0.2s;
+      box-shadow: 0 12px 30px -10px rgba(0,0,0,0.6);
+      transition: all 0.25s ease;
     }
-    .metric-card-deluxe:hover {
-      transform: translateY(-2px);
+    .cockpit-card-deluxe:hover {
       border-color: #38BDF8;
+      box-shadow: 0 14px 35px -10px rgba(56,189,248,0.25);
     }
     .live-pulse-dot {
       width: 8px; height: 8px; border-radius: 50%; background: #10B981;
@@ -423,7 +423,7 @@
 
         <div class="telemetry-feed" id="telemetryBox">
           [SYS] Hub Online. Pure OSM vector tiles loaded.<br>
-          [DYNAMIC_DOCS] Live Case Study, PRD, User Guide, OpenAPI, Schema, and Real-Time Analytics Dashboard configured.
+          [DYNAMIC_DOCS] Live Case Study, PRD, User Guide, OpenAPI, Schema, and Visual Analytics Dashboard configured.
         </div>
       </div>
 
@@ -661,11 +661,11 @@
         <h2 style="color:#38BDF8; font-size:1.25rem; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
           <span class="live-pulse-dot"></span> ME-TIME™ Enterprise Telemetry &amp; Impact Engine
         </h2>
-        <p style="color:#94A3B8; font-size:0.82rem;">Real-time ecosystem intelligence: Perceived Wait Satisfaction (PWS), anxiety reduction, dynamic queue adaptation, and SLA tracking across host platforms.</p>
+        <p style="color:#94A3B8; font-size:0.82rem;">Cognitive wait perception, anxiety reduction, dynamic delay recovery, and multi-tenant SLA performance.</p>
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <span style="background:#064E3B; color:#34D399; font-size:0.75rem; font-weight:800; padding:6px 12px; border-radius:10px; border:1px solid #059669; display:flex; align-items:center; gap:6px;">
-          <span style="width:7px; height:7px; background:#10B981; border-radius:50%;"></span> Live Ingestion: <b id="liveEventsCount">1,842 req/s</b>
+          <span style="width:7px; height:7px; background:#10B981; border-radius:50%;"></span> Ingestion: <b id="liveEventsCount">1,842 req/s</b>
         </span>
       </div>
     </div>
@@ -777,6 +777,8 @@
     let currentAnalyticsTenant = 'all';
     let chartTrendInstance = null;
     let chartLangInstance = null;
+    let chartSpikeInstance = null;
+    let chartBarInstance = null;
     let analyticsLiveTickerInterval = null;
 
     function setAnalyticsTenant(tenant) {
@@ -795,27 +797,26 @@
       let slaVal = "138 ms";
       let activeStreams = "24,819";
       let delayDeflect = "82.4%";
-      let audioConversion = "68%";
-      let doomScroll = "22%";
-      let mapStare = "10%";
+      let reclaimedHours = "4,820 hrs/wk";
+      let waitRatio = "0.68x";
 
       if (currentAnalyticsTenant === 'food') {
         tenantBadge = "Food & Grocery Delivery Platform Host";
         pwsVal = "78.1%"; refreshVal = "1.6 / ord"; callsVal = "0.09 / ord"; slaVal = "124 ms";
-        activeStreams = "18,450"; delayDeflect = "86.1%"; audioConversion = "71%"; doomScroll = "19%"; mapStare = "10%";
+        activeStreams = "18,450"; delayDeflect = "86.1%"; reclaimedHours = "3,650 hrs/wk"; waitRatio = "0.64x";
       } else if (currentAnalyticsTenant === 'ride') {
         tenantBadge = "Ride-Hailing & Transit Platform Host";
         pwsVal = "73.2%"; refreshVal = "2.1 / ord"; callsVal = "0.16 / ord"; slaVal = "156 ms";
-        activeStreams = "6,369"; delayDeflect = "77.8%"; audioConversion = "62%"; doomScroll = "26%"; mapStare = "12%";
+        activeStreams = "6,369"; delayDeflect = "77.8%"; reclaimedHours = "1,170 hrs/wk"; waitRatio = "0.72x";
       }
 
       root.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:22px; color:#F8FAFC;">
           
-          <!-- TOP PLATFORM VERTICAL SELECTOR -->
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#0B132B; border:1px solid var(--border); border-radius:16px; padding:12px 16px;">
-            <div style="display:flex; gap:8px; align-items:center;">
-              <span style="font-size:0.75rem; font-weight:800; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-right:4px;">Select Host Vertical:</span>
+          <!-- TOP PLATFORM VERTICAL SELECTOR & SYSTEM GAUGE BAR -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#0B132B; border:1px solid var(--border); border-radius:16px; padding:12px 18px;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <span style="font-size:0.75rem; font-weight:800; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-right:4px;">Filter Vertical:</span>
               <button onclick="setAnalyticsTenant('all')" style="padding:6px 14px; border-radius:10px; border:1px solid ${currentAnalyticsTenant === 'all' ? '#38BDF8' : '#334155'}; background:${currentAnalyticsTenant === 'all' ? '#0E7C7B' : '#111827'}; color:#FFF; font-weight:700; font-size:0.76rem; cursor:pointer; transition:all 0.2s;">
                 ◆ All Host Platforms
               </button>
@@ -827,167 +828,209 @@
               </button>
             </div>
             
-            <div style="font-size:0.74rem; font-weight:700; color:#38BDF8; background:rgba(56,189,248,0.1); padding:4px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
-              Active Scope: <b>${tenantBadge}</b>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <span style="font-size:0.74rem; font-weight:700; color:#38BDF8; background:rgba(56,189,248,0.1); padding:5px 12px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
+                Scope: <b>${tenantBadge}</b>
+              </span>
+              <span style="font-size:0.74rem; font-weight:700; color:#34D399; background:rgba(52,211,153,0.1); padding:5px 12px; border-radius:8px; border:1px solid rgba(52,211,153,0.3);">
+                Cluster Uptime: <b>99.98%</b>
+              </span>
             </div>
           </div>
 
-          <!-- 5-PILLAR EXECUTIVE KPI GRID -->
+          <!-- 5-PILLAR EXECUTIVE KPI COCKPIT -->
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:14px;">
             
-            <div class="metric-card-deluxe">
+            <div class="cockpit-card-deluxe">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">North Star: PWS Rating</span>
                 <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">+44.4% Uplift</span>
               </div>
-              <div style="font-size:1.85rem; font-weight:900; color:#38BDF8; line-height:1;" id="liveKpiPws">${pwsVal}</div>
+              <div style="font-size:1.95rem; font-weight:900; color:#38BDF8; line-height:1;" id="liveKpiPws">${pwsVal}</div>
               <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Positive Wait Perception (Target: ≥ 75.0%)</div>
             </div>
 
-            <div class="metric-card-deluxe">
+            <div class="cockpit-card-deluxe">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Map Stare Frequency</span>
-                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">-62.5% Panic Drop</span>
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Net Wait Hours Reclaimed</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">Aggregated</span>
               </div>
-              <div style="font-size:1.85rem; font-weight:900; color:#F8FAFC; line-height:1;" id="liveKpiRefresh">${refreshVal}</div>
-              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Anxiety Proxy (Baseline: 4.8 opens/order)</div>
+              <div style="font-size:1.95rem; font-weight:900; color:#34D399; line-height:1;" id="liveKpiHours">${reclaimedHours}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Converted from dead waiting to leisure</div>
             </div>
 
-            <div class="metric-card-deluxe">
+            <div class="cockpit-card-deluxe">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Doorstep Driver Calls</span>
-                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">-68.4% Calls</span>
+                <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Perceived / Actual Wait Ratio</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#38BDF8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:6px;">-32% Elasticity</span>
               </div>
-              <div style="font-size:1.85rem; font-weight:900; color:#F8FAFC; line-height:1;" id="liveKpiCalls">${callsVal}</div>
-              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Gate Friction (Baseline: 0.38 calls/order)</div>
+              <div style="font-size:1.95rem; font-weight:900; color:#38BDF8; line-height:1;" id="liveKpiRatio">${waitRatio}</div>
+              <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">24m delivery feels like 16.3m to user</div>
             </div>
 
-            <div class="metric-card-deluxe">
+            <div class="cockpit-card-deluxe">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Delay WISMO Deflection</span>
-                <span style="font-size:0.65rem; font-weight:800; color:#FCD34D; background:rgba(252,211,77,0.15); padding:2px 6px; border-radius:6px;">Auto-Extended</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#FCD34D; background:rgba(252,211,77,0.15); padding:2px 6px; border-radius:6px;">Auto-Queued</span>
               </div>
-              <div style="font-size:1.85rem; font-weight:900; color:#FCD34D; line-height:1;" id="liveKpiDeflect">${delayDeflect}</div>
+              <div style="font-size:1.95rem; font-weight:900; color:#FCD34D; line-height:1;" id="liveKpiDeflect">${delayDeflect}</div>
               <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">+10m delay support tickets prevented</div>
             </div>
 
-            <div class="metric-card-deluxe">
+            <div class="cockpit-card-deluxe">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:0.72rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">p95 Edge SLA Latency</span>
-                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">SLA Met</span>
+                <span style="font-size:0.65rem; font-weight:800; color:#34D399; background:rgba(52,211,153,0.15); padding:2px 6px; border-radius:6px;">SLA Pass</span>
               </div>
-              <div style="font-size:1.85rem; font-weight:900; color:#34D399; line-height:1;" id="liveKpiSla">${slaVal}</div>
+              <div style="font-size:1.95rem; font-weight:900; color:#34D399; line-height:1;" id="liveKpiSla">${slaVal}</div>
               <div style="font-size:0.7rem; color:#64748B; margin-top:6px;">Multi-Tenant Gateway (Budget: ≤ 300ms)</div>
             </div>
 
           </div>
 
-          <!-- ANIMATED CHARTS ROW -->
+          <!-- PRIMARY CHARTS GRID (ROW 1): TREND LINE & REAL-TIME EVENT STREAM -->
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(480px, 1fr)); gap:18px;">
             
-            <!-- 30-DAY EVOLUTION LINE CHART -->
+            <!-- 30-DAY CORRELATION LINE & SPIKE CHART -->
             <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">30-Day Evolution: PWS Satisfaction vs Map Refresh Rate</h3>
+                <div>
+                  <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">30-Day Evolution: PWS Satisfaction vs Map Stare Refreshes</h3>
+                  <div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Correlation: Higher audio engagement directly depresses tracking anxiety</div>
+                </div>
                 <span style="font-size:0.7rem; color:#34D399; font-weight:700;">● Live Correlated Trend</span>
               </div>
-              <div style="position:relative; height:240px; width:100%;">
+              <div style="position:relative; height:260px; width:100%;">
                 <canvas id="chartTrendCanvas"></canvas>
               </div>
             </div>
 
-            <!-- ATTENTION RE-ALLOCATION RADAR & CACHE METRICS -->
+            <!-- REAL-TIME LIVE INGESTION SPIKE STREAM (AREA CHART) -->
             <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Wait Window Attention Allocation (24-Min Countdown)</h3>
-                <span style="font-size:0.7rem; color:#94A3B8;">SDK Viewport Telemetry</span>
+                <div>
+                  <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Real-Time Order Ingestion &amp; Experience Webhook Stream</h3>
+                  <div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Live request telemetry across edge gateway clusters</div>
+                </div>
+                <span style="font-size:0.7rem; color:#FCD34D; font-weight:700;">● Pulsing Real-Time</span>
               </div>
-
-              <div style="margin-bottom:12px;">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
-                  <span>🎧 Intentional Audio Leisure &amp; Micro-Podcasts</span>
-                  <span style="color:#34D399;">${audioConversion} (Target State Reclaimed)</span>
-                </div>
-                <div style="width:100%; height:12px; background:#1E293B; border-radius:6px; overflow:hidden;">
-                  <div style="width:${audioConversion}; height:100%; background:linear-gradient(90deg, #0E7C7B, #10B981); border-radius:6px;"></div>
-                </div>
+              <div style="position:relative; height:260px; width:100%;">
+                <canvas id="chartSpikeCanvas"></canvas>
               </div>
+            </div>
 
-              <div style="margin-bottom:12px;">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
-                  <span>📱 Social Media Doom-Scrolling</span>
-                  <span style="color:#94A3B8;">${doomScroll} (Slashed from 58% baseline)</span>
+          </div>
+
+          <!-- SECONDARY CHARTS GRID (ROW 2): ATTENTION TRANSITION BAR & DONUT LANGUAGE MIX -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(480px, 1fr)); gap:18px;">
+            
+            <!-- ATTENTION RE-ALLOCATION HORIZONTAL BAR CHART -->
+            <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div>
+                  <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">User Attention Re-Allocation (24-Min Wait Window)</h3>
+                  <div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Baseline vs ME-TIME™ Screen-Off Leisure Distribution</div>
                 </div>
-                <div style="width:100%; height:12px; background:#1E293B; border-radius:6px; overflow:hidden;">
-                  <div style="width:${doomScroll}; height:100%; background:#475569; border-radius:6px;"></div>
-                </div>
+                <span style="font-size:0.7rem; color:#34D399; font-weight:700;">SDK Viewport Sync</span>
               </div>
-
-              <div style="margin-bottom:16px;">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
-                  <span>🗺️ Anxious Compulsive Map Staring</span>
-                  <span style="color:#38BDF8;">${mapStare} (Slashed from 23% baseline)</span>
-                </div>
-                <div style="width:100%; height:12px; background:#1E293B; border-radius:6px; overflow:hidden;">
-                  <div style="width:${mapStare}; height:100%; background:#0284C7; border-radius:6px;"></div>
-                </div>
+              <div style="position:relative; height:240px; width:100%;">
+                <canvas id="chartBarCanvas"></canvas>
               </div>
+            </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; border-top:1px solid #1E293B; padding-top:12px;">
-                <div style="background:#111827; padding:10px 12px; border-radius:12px; border:1px solid #1F2937;">
-                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">ACTIVE CONCURRENT STREAMS</div>
-                  <div style="font-size:1.2rem; font-weight:900; color:#38BDF8; margin-top:2px;" id="liveActiveSessions">${activeStreams}</div>
+            <!-- DRIVER LINGUISTICS & DWELL TIME (DONUT CHART) -->
+            <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div>
+                  <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Courier Linguistics &amp; Doorstep Friction Matrix</h3>
+                  <div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Multilingual fulfillment adoption across delivery fleets</div>
                 </div>
-                <div style="background:#111827; padding:10px 12px; border-radius:12px; border:1px solid #1F2937;">
-                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700;">PRE-CACHE HIT RATIO</div>
-                  <div style="font-size:1.2rem; font-weight:900; color:#34D399; margin-top:2px;">99.2% (IndexedDB)</div>
+                <span style="font-size:0.7rem; color:#34D399; font-weight:700;">● Multilingual Handoff</span>
+              </div>
+              
+              <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; height:240px;">
+                <div style="position:relative; width:170px; height:170px;">
+                  <canvas id="chartLangCanvas"></canvas>
+                </div>
+                <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; background:#111827; padding:8px 12px; border-radius:8px; border:1px solid #1E293B;">
+                    <span style="color:#2DD4BF; font-weight:800;">■ தமிழ் (Tamil)</span>
+                    <span style="font-weight:900;">52%</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; background:#111827; padding:8px 12px; border-radius:8px; border:1px solid #1E293B;">
+                    <span style="color:#38BDF8; font-weight:800;">■ हिन्दी (Hindi)</span>
+                    <span style="font-weight:900;">31%</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; background:#111827; padding:8px 12px; border-radius:8px; border:1px solid #1E293B;">
+                    <span style="color:#FCD34D; font-weight:800;">■ English</span>
+                    <span style="font-weight:900;">17%</span>
+                  </div>
+                  <div style="font-size:0.74rem; color:#34D399; font-weight:700; border-top:1px solid #1E293B; padding-top:6px;">
+                    ⚡ Doorstep Dwell Time: <b>1.4 Mins</b> (▼ 42% gate reduction).
+                  </div>
                 </div>
               </div>
             </div>
 
           </div>
 
-          <!-- BOTTOM ROW: DRIVER LINGUISTICS & LIVE VERBATIMS -->
+          <!-- BOTTOM ROW: SYSTEM HEALTH METRICS & PROGRESSIVE VERBATIMS -->
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(480px, 1fr)); gap:18px;">
             
-            <!-- DRIVER LINGUISTICS & DWELL TIME -->
+            <!-- SYSTEM INFRASTRUCTURE GAUGES -->
             <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
               <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8; margin-bottom:14px;">
-                Courier Language Mix &amp; Doorstep Ergonomics
+                Edge Infrastructure &amp; Dynamic SLA Performance
               </h3>
-              <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
-                <div style="position:relative; width:150px; height:150px;">
-                  <canvas id="chartLangCanvas"></canvas>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div style="background:#111827; padding:14px; border-radius:14px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">Active Concurrent Streams</div>
+                  <div style="font-size:1.4rem; font-weight:900; color:#38BDF8; margin-top:3px;" id="liveActiveSessions">${activeStreams}</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Across 14 Regional Edge Nodes</div>
                 </div>
-                <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
-                  <div style="font-size:0.8rem; color:#CBD5E1;">■ <b style="color:#2DD4BF;">தமிழ் (Tamil):</b> 52%</div>
-                  <div style="font-size:0.8rem; color:#CBD5E1;">■ <b style="color:#38BDF8;">हिन्दी (Hindi):</b> 31%</div>
-                  <div style="font-size:0.8rem; color:#CBD5E1;">■ <b style="color:#FCD34D;">English:</b> 17%</div>
-                  <div style="border-top:1px solid #1E293B; paddingTop:8px; font-size:0.74rem; color:#34D399;">
-                    Doorstep Dwell Time: <b>1.4 Mins</b> (▼ 42% gate reduction).
-                  </div>
+
+                <div style="background:#111827; padding:14px; border-radius:14px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">IndexedDB Pre-Cache Hit</div>
+                  <div style="font-size:1.4rem; font-weight:900; color:#34D399; margin-top:3px;">99.2%</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Zero Elevator / Basement Dropouts</div>
+                </div>
+
+                <div style="background:#111827; padding:14px; border-radius:14px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">TTS Voice Note Adoption</div>
+                  <div style="font-size:1.4rem; font-weight:900; color:#FCD34D; margin-top:3px;">54.2% Drivers</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Hands-Free Audio Readout</div>
+                </div>
+
+                <div style="background:#111827; padding:14px; border-radius:14px; border:1px solid #1F2937;">
+                  <div style="font-size:0.68rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">Caution Badge Accuracy</div>
+                  <div style="font-size:1.4rem; font-weight:900; color:#34D399; margin-top:3px;">98.4% Precision</div>
+                  <div style="font-size:0.65rem; color:#64748B; margin-top:2px;">Pet, Gate &amp; Silent Drop Sync</div>
                 </div>
               </div>
             </div>
 
-            <!-- LIVE NLP VERBATIMS STREAM -->
+            <!-- LIVE NLP PROGRESSIVE FEEDBACK STREAM -->
             <div style="background:#0F172A; border:1px solid var(--border); border-radius:20px; padding:22px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Live Progressive Feedback &amp; NLP Ingestion</h3>
-                <span style="font-size:0.68rem; color:#34D399; font-weight:700;">● Auto-Updating</span>
+                <div>
+                  <h3 style="font-size:0.95rem; font-weight:800; color:#38BDF8;">Live Progressive Feedback &amp; NLP Ingestion</h3>
+                  <div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Real-time verbatim comments captured via post-order progressive disclosure</div>
+                </div>
+                <span style="font-size:0.68rem; color:#34D399; font-weight:700;">● Live Feed</span>
               </div>
+
               <div style="display:flex; flex-direction:column; gap:10px;">
-                <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:10px 14px;">
+                <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:12px 14px;">
                   <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:800; color:#34D399; margin-bottom:3px;">
                     <span>⚡ short_fine (Tech Podcast • 12m)</span>
                     <span style="color:#64748B; font-weight:600;">Just now</span>
                   </div>
                   <div style="font-size:0.76rem; color:#CBD5E1; line-height:1.4;">
-                    "The 12-minute AI brief finished right as the driver reached the gate. Didn't check the map once."
+                    "The 12-minute AI brief finished right as the driver reached the gate. Didn't look at the tracking map once."
                   </div>
                 </div>
 
-                <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:10px 14px;">
+                <div style="background:#111827; border:1px solid #1E293B; border-radius:12px; padding:12px 14px;">
                   <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:800; color:#F59E0B; margin-bottom:3px;">
                     <span>⏳ long_frustrating (Traffic Delay +10m)</span>
                     <span style="color:#64748B; font-weight:600;">3 mins ago</span>
@@ -1004,10 +1047,10 @@
         </div>
       `;
 
-      // INITIALIZE CHART.JS VISUALIZATIONS
+      // INITIALIZE RICH CHART.JS VISUALS
       initChartJsVisuals();
 
-      // START SIMULATED REAL-TIME TELEMETRY STREAM
+      // START SIMULATED REAL-TIME TELEMETRY SPIKE STREAM
       if (!analyticsLiveTickerInterval) {
         analyticsLiveTickerInterval = setInterval(() => {
           const streamEl = document.getElementById('liveActiveSessions');
@@ -1029,17 +1072,30 @@
             const latency = 135 + Math.floor(Math.random() * 10);
             slaEl.innerText = `${latency} ms`;
           }
-        }, 2500);
+
+          // UPDATE SPIKE STREAM DATA DYNAMICALLY
+          if (chartSpikeInstance) {
+            const newPoint = 1750 + Math.floor(Math.random() * 200);
+            chartSpikeInstance.data.datasets[0].data.shift();
+            chartSpikeInstance.data.datasets[0].data.push(newPoint);
+            chartSpikeInstance.update('none');
+          }
+        }, 2000);
       }
     }
 
     function initChartJsVisuals() {
       const trendCtx = document.getElementById('chartTrendCanvas');
+      const spikeCtx = document.getElementById('chartSpikeCanvas');
+      const barCtx = document.getElementById('chartBarCanvas');
       const langCtx = document.getElementById('chartLangCanvas');
 
       if (chartTrendInstance) chartTrendInstance.destroy();
+      if (chartSpikeInstance) chartSpikeInstance.destroy();
+      if (chartBarInstance) chartBarInstance.destroy();
       if (chartLangInstance) chartLangInstance.destroy();
 
+      // 1. DUAL AXIS CORRELATION LINE CHART
       if (trendCtx) {
         chartTrendInstance = new Chart(trendCtx, {
           type: 'line',
@@ -1050,7 +1106,7 @@
                 label: 'PWS Satisfaction (%)',
                 data: [32.0, 44.5, 58.0, 66.2, 71.8, 74.9, parseFloat(currentAnalyticsTenant === 'food' ? 78.1 : (currentAnalyticsTenant === 'ride' ? 73.2 : 76.4))],
                 borderColor: '#38BDF8',
-                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                backgroundColor: 'rgba(56, 189, 248, 0.15)',
                 borderWidth: 3,
                 fill: true,
                 tension: 0.35,
@@ -1099,6 +1155,76 @@
         });
       }
 
+      // 2. REAL-TIME LIVE INGESTION SPIKE STREAM (AREA CHART)
+      if (spikeCtx) {
+        chartSpikeInstance = new Chart(spikeCtx, {
+          type: 'line',
+          data: {
+            labels: ['10s ago', '8s ago', '6s ago', '4s ago', '2s ago', 'Now'],
+            datasets: [{
+              label: 'Ingestion Throughput (req/s)',
+              data: [1810, 1845, 1790, 1860, 1825, 1850],
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: '#94A3B8', font: { size: 11, weight: 'bold' } } }
+            },
+            scales: {
+              x: { grid: { color: '#1E293B' }, ticks: { color: '#64748B' } },
+              y: { grid: { color: '#1E293B' }, ticks: { color: '#10B981' }, min: 1600, max: 2100 }
+            }
+          }
+        });
+      }
+
+      // 3. ATTENTION RE-ALLOCATION BAR CHART
+      if (barCtx) {
+        const audioVal = currentAnalyticsTenant === 'food' ? 71 : (currentAnalyticsTenant === 'ride' ? 62 : 68);
+        const doomVal = currentAnalyticsTenant === 'food' ? 19 : (currentAnalyticsTenant === 'ride' ? 26 : 22);
+        const mapVal = currentAnalyticsTenant === 'food' ? 10 : (currentAnalyticsTenant === 'ride' ? 12 : 10);
+
+        chartBarInstance = new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Audio Leisure', 'Doom-Scrolling', 'Map Staring', 'Other Apps'],
+            datasets: [
+              {
+                label: 'Pre-ME-TIME Baseline (%)',
+                data: [3, 58, 23, 16],
+                backgroundColor: '#475569',
+                borderRadius: 6
+              },
+              {
+                label: 'With ME-TIME Platform (%)',
+                data: [audioVal, doomVal, mapVal, 100 - (audioVal + doomVal + mapVal)],
+                backgroundColor: '#0E7C7B',
+                borderRadius: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: '#94A3B8', font: { size: 11, weight: 'bold' } } }
+            },
+            scales: {
+              x: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8' } },
+              y: { grid: { color: '#1E293B' }, ticks: { color: '#64748B' }, min: 0, max: 100 }
+            }
+          }
+        });
+      }
+
+      // 4. DONUT COURIER LINGUISTICS CHART
       if (langCtx) {
         chartLangInstance = new Chart(langCtx, {
           type: 'doughnut',
@@ -1115,7 +1241,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            cutout: '70%'
+            cutout: '68%'
           }
         });
       }
