@@ -16,6 +16,9 @@
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
   <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
 
+  <!-- Marked.js CDN (For Dynamic Markdown Rendering) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
     :root {
       --primary: #FF5200;
@@ -161,7 +164,6 @@
       font-size: 0.74rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;
     }
 
-    /* COLLAPSIBLE FEED & DUAL-AXIS CONTROLS */
     .collapsible-feed-section {
       display: none; background: #F1F5F9; border-radius: 22px; padding: 12px 0 16px; margin: 0 14px 14px; border: 1px solid #E2E8F0;
     }
@@ -237,7 +239,6 @@
     .turn-text { font-size: 0.92rem; font-weight: 800; color: #FFF; line-height: 1.2; }
     .turn-sub { font-size: 0.68rem; opacity: 0.9; margin-top: 2px; }
 
-    /* DRIVER MAP WRAPPER (FIXED HEIGHT FOR LEAFLET RENDERING) */
     .driver-map-wrap { height: 220px; min-height: 220px; width: 100%; position: relative; }
     #driverMap { height: 100%; width: 100%; }
 
@@ -279,18 +280,22 @@
     .pws-box { background: #FFFFFF; border-radius: 24px; padding: 22px 18px; text-align: center; width: 100%; color: var(--navy); }
     .pws-btn { width: 100%; padding: 12px; border-radius: 14px; border: 1px solid #EDF2F7; background: #F8FAFC; font-size: 0.82rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
 
-    /* TAB 2, 3, 4: DOCS & SWAGGER */
+    /* DOCUMENTATION VIEW STYLES & DYNAMIC MARKDOWN WRAPPERS */
     .doc-page-layout { background: #0F172A; border: 1px solid var(--border); border-radius: 20px; padding: 32px; color: #E2E8F0; line-height: 1.6; }
     .doc-page-layout h1 { font-size: 1.8rem; color: #38BDF8; margin-bottom: 12px; }
     .doc-page-layout h2 { font-size: 1.3rem; color: var(--teal); margin: 24px 0 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-    .doc-page-layout p { font-size: 0.95rem; color: #CBD5E1; margin-bottom: 14px; }
-    .doc-callout { background: #134E4A; border-left: 4px solid #2DD4BF; padding: 14px 18px; border-radius: 8px; margin: 16px 0; font-size: 0.9rem; }
+    .doc-page-layout h3 { font-size: 1.1rem; color: #FCD34D; margin: 18px 0 8px; }
+    .doc-page-layout h4 { font-size: 0.95rem; color: #38BDF8; margin: 14px 0 6px; }
+    .doc-page-layout p { font-size: 0.92rem; color: #CBD5E1; margin-bottom: 14px; }
+    .doc-page-layout ul, .doc-page-layout ol { margin-left: 20px; margin-bottom: 14px; }
+    .doc-page-layout li { margin-bottom: 6px; font-size: 0.9rem; color: #CBD5E1; }
+    .doc-page-layout blockquote { background: #1E293B; border-left: 4px solid #38BDF8; padding: 12px 16px; border-radius: 8px; margin: 14px 0; color: #F8FAFC; }
     
-    .data-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 0.85rem; }
-    .data-table th { background: #1E293B; color: #38BDF8; padding: 10px 14px; text-align: left; border: 1px solid #334155; }
-    .data-table td { padding: 10px 14px; border: 1px solid #334155; background: #0B132B; color: #E2E8F0; }
-
-    .code-block-box { background: #030712; border: 1px solid #1F2937; border-radius: 12px; padding: 16px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.82rem; color: #38BDF8; overflow-x: auto; margin: 14px 0; }
+    .doc-page-layout table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 0.85rem; }
+    .doc-page-layout th { background: #1E293B; color: #38BDF8; padding: 10px 14px; text-align: left; border: 1px solid #334155; }
+    .doc-page-layout td { padding: 10px 14px; border: 1px solid #334155; background: #0B132B; color: #E2E8F0; }
+    .doc-page-layout pre { background: #030712; border: 1px solid #1F2937; border-radius: 12px; padding: 16px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.82rem; color: #38BDF8; overflow-x: auto; margin: 14px 0; }
+    .doc-page-layout code { font-family: 'Fira Code', Consolas, monospace; background: rgba(255,255,255,0.1); padding: 2px 5px; border-radius: 4px; }
 
     #swagger-ui-container { background: #FFF; border-radius: 16px; padding: 12px; }
   </style>
@@ -375,7 +380,7 @@
 
         <div class="telemetry-feed" id="telemetryBox">
           [SYS] Hub Online. Pure OSM vector tiles loaded.<br>
-          [LEAFLET] Dual Map instances initialized.
+          [DYNAMIC_DOCS] Live PRD, User Guide, OpenAPI, and Schema configured.
         </div>
       </div>
 
@@ -440,7 +445,6 @@
               </div>
             </div>
 
-            <!-- COLLAPSIBLE DISCOVERY DRAWER (WITH DUAL-AXIS SCROLLING & ARROWS) -->
             <div class="collapsible-feed-section" id="feedDrawer">
               <div class="category-dock">
                 <button class="cat-btn active" onclick="switchCategory('podcasts', this)"><i data-lucide="headphones" style="width:12px"></i> Podcasts</button>
@@ -521,10 +525,7 @@
                 <button class="btn-driver-lang-pill" id="pillLangHi" onclick="setDriverLanguage('hi')">हिन्दी</button>
                 <button class="btn-driver-lang-pill" id="pillLangEn" onclick="setDriverLanguage('en')">EN</button>
               </div>
-              <button class="btn-sunlight-toggle" id="btnSunlightToggle" onclick="cycleThemeMode()" title="Toggle Auto / Day / Night Theme">
-				<i data-lucide="sun-moon" style="width:11px;" id="themeToggleIcon"></i>
-				<span id="themeToggleLabel">Auto Theme</span>
-				</button>
+              <button class="btn-sunlight-toggle" id="btnSunlightToggle" onclick="cycleThemeMode()"><i data-lucide="sun-moon" style="width:11px;"></i> <span id="themeToggleLabel">Auto Theme</span></button>
             </div>
 
             <div class="driver-turn-banner">
@@ -596,63 +597,72 @@
     </div>
   </div>
 
-  <!-- TAB 2: PRD -->
+  <!-- TAB 2: PRD (DYNAMICALLY LOADED FROM docs/PRD.md) -->
   <div class="tab-view-container" id="tab-prd">
-    <div class="doc-page-layout">
-      <h1>ME-TIME™ Product Requirements Document (PRD)</h1>
-      <p><b>Version:</b> 1.0 Enterprise • <b>Document Owner:</b> Nithish — Product Lead</p>
-      <div class="doc-callout">
-        <b>Core Thesis:</b> Transforms dead delivery wait times (20–45 min) into high-value ambient leisure sessions[cite: 1].
-      </div>
-      <h2>1. The Problem Space</h2>
-      <p>• <b>81% Tracking Anxiety:</b> Compulsive map checking driven by erratic ETAs.<br>
-      • <b>58% Doom-Scrolling:</b> Passive, unproductive waiting without structured audio.<br>
-      • <b>38% Final-Mile Friction:</b> Doorstep disruptions, pet alerts, and linguistic barriers[cite: 1].</p>
+    <div class="doc-page-layout" id="prd-content-view">
+      <p style="color:#94A3B8;">Loading full Product Requirements Document (PRD.md)...</p>
     </div>
   </div>
 
-  <!-- TAB 3: USER GUIDE -->
+  <!-- TAB 3: USER GUIDE (DYNAMICALLY LOADED FROM docs/user_guide.md) -->
   <div class="tab-view-container" id="tab-guide">
-    <div class="doc-page-layout">
-      <h1>ME-TIME™ End-User Guide &amp; Interactive Feature Manual</h1>
-      <p><b>Brand Motto:</b> <i>"Your Time, Reclaimed. Your Food, On Time."</i></p>
-      <h2>Step-by-Step Experience Guide</h2>
-      <p>1. <b>Time Budget Allocation:</b> Calibrated to live delivery windows ($Duration \le ETA$)[cite: 1].<br>
-      2. <b>Queue-Tail Ambient Bridge:</b> Seamlessly bridges finished tracks with lo-fi beats until rider handoff[cite: 1].<br>
-      3. <b>Outdoor Ergonomics:</b> 1-tap voice readout and high-contrast sunlight toggle for drivers[cite: 1].</p>
+    <div class="doc-page-layout" id="guide-content-view">
+      <p style="color:#94A3B8;">Loading full End-User Guide (user_guide.md)...</p>
     </div>
   </div>
 
-  <!-- TAB 4: SWAGGER -->
+  <!-- TAB 4: SWAGGER / API EXPLORER -->
   <div class="tab-view-container" id="tab-swagger">
     <div style="background:#0F172A; border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:16px;">
       <h2 style="color:#38BDF8; margin-bottom:6px;">ME-TIME™ OpenAPI 3.1 Interactive Explorer</h2>
-      <p style="color:#94A3B8; font-size:0.85rem;">Live test endpoint contracts for Order Events, Wait Experience, and Feedback APIs[cite: 1].</p>
+      <p style="color:#94A3B8; font-size:0.85rem;">Live test endpoint contracts for Order Events, Wait Experience, and Feedback APIs directly connected to docs/openapi.json.</p>
     </div>
     <div id="swagger-ui-container"></div>
   </div>
 
-  <!-- TAB 5: SCHEMA -->
+  <!-- TAB 5: SCHEMA DDL (DYNAMICALLY LOADED FROM docs/schema.sql) -->
   <div class="tab-view-container" id="tab-schema">
     <div class="doc-page-layout">
       <h1>Relational Database Schema (PostgreSQL DDL)</h1>
-      <p>Multi-tenant database schema implementing shadow order states, delay events, and idempotent feedback[cite: 1].</p>
+      <p style="margin-bottom:16px;">Multi-tenant database schema implementing shadow order states, delay events, content catalogs, and idempotent feedback.</p>
       <div class="code-block-box">
-<pre>
--- Multi-Tenant Isolation
-CREATE TABLE tenants (
-    tenant_id VARCHAR(32) PRIMARY KEY,
-    tenant_name VARCHAR(120) NOT NULL,
-    vertical VARCHAR(40) NOT NULL,
-    status VARCHAR(20) DEFAULT 'active',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-</pre>
+        <pre><code id="schema-sql-view">-- Loading schema.sql...</code></pre>
       </div>
     </div>
   </div>
 
   <script>
+    let docsCache = { prd: null, guide: null, schema: null };
+
+    async function loadDynamicDocs(type) {
+      try {
+        if (type === 'prd' && !docsCache.prd) {
+          const res = await fetch('docs/PRD.md');
+          if (res.ok) {
+            const md = await res.text();
+            docsCache.prd = md;
+            document.getElementById('prd-content-view').innerHTML = marked.parse(md);
+          }
+        } else if (type === 'guide' && !docsCache.guide) {
+          const res = await fetch('docs/user_guide.md');
+          if (res.ok) {
+            const md = await res.text();
+            docsCache.guide = md;
+            document.getElementById('guide-content-view').innerHTML = marked.parse(md);
+          }
+        } else if (type === 'schema' && !docsCache.schema) {
+          const res = await fetch('docs/schema.sql');
+          if (res.ok) {
+            const sql = await res.text();
+            docsCache.schema = sql;
+            document.getElementById('schema-sql-view').innerText = sql;
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching document:', err);
+      }
+    }
+
     function switchGlobalTab(tabKey, btn) {
       document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-view-container').forEach(t => t.classList.remove('active'));
@@ -665,6 +675,8 @@ CREATE TABLE tenants (
           if (custMap) custMap.invalidateSize();
           if (driverMap) driverMap.invalidateSize();
         }, 150);
+      } else {
+        loadDynamicDocs(tabKey);
       }
     }
 
@@ -672,54 +684,6 @@ CREATE TABLE tenants (
       navigator.clipboard.writeText(window.location.href);
       alert("Hub Showcase URL copied to clipboard!");
     }
-
-    const SWAGGER_SPEC = {
-      openapi: "3.1.0",
-      info: {
-        title: "ME-TIME™ Experience Engine API",
-        version: "1.0.0",
-        description: "Stateless multi-tenant gateway for wait-time optimization and audio delivery"
-      },
-      paths: {
-        "/v1/webhooks/order-events": {
-          post: {
-            summary: "Ingest Host Order Lifecycle Event",
-            requestBody: {
-              required: true,
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      order_id: { type: "string", example: "ORD_8841" },
-                      event_type: { type: "string", example: "order_created" },
-                      eta_minutes: { type: "integer", example: 28 },
-                      recipient_context: { type: "string", example: "myself" },
-                      drop_off_instruction: { type: "string", example: "dog_alert" }
-                    }
-                  }
-                }
-              }
-            },
-            responses: { "202": { description: "Accepted" } }
-          }
-        },
-        "/v1/orders/{orderId}/experience": {
-          get: {
-            summary: "Get Composite Waiting Experience Payload",
-            parameters: [{ name: "orderId", in: "path", required: true, schema: { type: "string" } }],
-            responses: { "200": { description: "Composite payload returned in <300ms" } }
-          }
-        },
-        "/v1/orders/{orderId}/feedback": {
-          post: {
-            summary: "Submit 1-Tap Perceived Wait Satisfaction (PWS)",
-            parameters: [{ name: "orderId", in: "path", required: true, schema: { type: "string" } }],
-            responses: { "201": { description: "Recorded" } }
-          }
-        }
-      }
-    };
 
     let currentEtaMinutes = 24;
     let currentProfile = 'nithish';
@@ -731,37 +695,6 @@ CREATE TABLE tenants (
     let isDrawerOpen = false;
     let deliveryState = 'pickup';
     let currentThemeMode = 'auto';
-
-	function cycleThemeMode() {
-	const container = document.getElementById('driverScreenContainer');
-	const btn = document.getElementById('btnSunlightToggle');
-	const lbl = document.getElementById('themeToggleLabel');
-  
-	if (currentThemeMode === 'auto') {
-    currentThemeMode = 'day';
-    container.classList.add('sunlight-mode');
-    btn.classList.add('active');
-    lbl.innerText = 'Day Mode';
-    logTelemetry('[THEME] Driver switched to: <b>Day Mode (Forced High-Contrast)</b>.');
-  } else if (currentThemeMode === 'day') {
-    currentThemeMode = 'night';
-    container.classList.remove('sunlight-mode');
-    btn.classList.remove('active');
-    lbl.innerText = 'Night Mode';
-    logTelemetry('[THEME] Driver switched to: <b>Night Mode (Dark OLED)</b>.');
-  } else {
-    currentThemeMode = 'auto';
-    // Auto Mode checks local time (between 6 AM and 6 PM defaults to day contrast)
-    const hour = new Date().getHours();
-    const isDayTime = hour >= 6 && hour < 18;
-    container.classList.toggle('sunlight-mode', isDayTime);
-    btn.classList.toggle('active', isDayTime);
-    lbl.innerText = 'Auto Theme';
-    logTelemetry('[THEME] Driver switched to: <b>Auto Theme (Ambient Synced)</b>.');
-  }
-  
-  lucide.createIcons();
-}
 
     const DRIVER_I18N = {
       ta: {
@@ -1018,11 +951,33 @@ CREATE TABLE tenants (
       lucide.createIcons();
     }
 
-    function toggleSunlightMode() {
-      isSunlight = !isSunlight;
-      document.getElementById('driverScreenContainer').classList.toggle('sunlight-mode', isSunlight);
-      document.getElementById('btnSunlightToggle').classList.toggle('active', isSunlight);
-      logTelemetry(`[A11Y] Driver Sunlight High-Contrast Mode: <b>${isSunlight ? 'ON' : 'OFF'}</b>.`);
+    function cycleThemeMode() {
+      const container = document.getElementById('driverScreenContainer');
+      const btn = document.getElementById('btnSunlightToggle');
+      const lbl = document.getElementById('themeToggleLabel');
+      
+      if (currentThemeMode === 'auto') {
+        currentThemeMode = 'day';
+        container.classList.add('sunlight-mode');
+        btn.classList.add('active');
+        lbl.innerText = 'Day Mode';
+        logTelemetry('[THEME] Driver switched to: <b>Day Mode (Forced High-Contrast)</b>.');
+      } else if (currentThemeMode === 'day') {
+        currentThemeMode = 'night';
+        container.classList.remove('sunlight-mode');
+        btn.classList.remove('active');
+        lbl.innerText = 'Night Mode';
+        logTelemetry('[THEME] Driver switched to: <b>Night Mode (Dark OLED)</b>.');
+      } else {
+        currentThemeMode = 'auto';
+        const hour = new Date().getHours();
+        const isDayTime = hour >= 6 && hour < 18;
+        container.classList.toggle('sunlight-mode', isDayTime);
+        btn.classList.toggle('active', isDayTime);
+        lbl.innerText = 'Auto Theme';
+        logTelemetry('[THEME] Driver switched to: <b>Auto Theme (Ambient Synced)</b>.');
+      }
+      lucide.createIcons();
     }
 
     function speakDriverNote() {
@@ -1211,8 +1166,9 @@ CREATE TABLE tenants (
       updateDriverTerminal();
       lucide.createIcons();
 
+      // Swagger UI dynamically bound to docs/openapi.json
       SwaggerUIBundle({
-        spec: SWAGGER_SPEC,
+        url: "docs/openapi.json",
         dom_id: '#swagger-ui-container',
         presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
         layout: "BaseLayout"
