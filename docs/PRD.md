@@ -37,8 +37,8 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 | :--- | :--- | :--- | :--- |
 | **1. Kitchen Preparation** | 0 – 10 Mins | **1.2 Opens** | Customer suspicion: *"Why has the kitchen not started?"* |
 | **2. In-Transit Corridor** | 10 – 30 Mins | **4.6 Compulsive Opens** | Peak temporal anxiety, map doomloop, cognitive distraction |
-| **3. Logistics Slippage** | +8 – 15 Mins | **Continuous Staring** | Inbound WISMO support tickets, cancellation and refund threats[cite: 1] |
-| **4. Doorstep Final-Mile** | Last 3 Mins | **Frantic Checking** | Language barrier at gate, unexpected doorbell shocks, pet alerts[cite: 1] |
+| **3. Logistics Slippage** | +8 – 15 Mins | **Continuous Staring** | Inbound WISMO support tickets, cancellation and refund threats |
+| **4. Doorstep Final-Mile** | Last 3 Mins | **Frantic Checking** | Language barrier at gate, unexpected doorbell shocks, pet alerts |
 
 ---
 
@@ -47,9 +47,9 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 | Metric | Measured Impact | Root Cause & Operational Consequence |
 | :--- | :--- | :--- |
 | 📱 **81% Tracking Anxiety** | 2–5+ map opens per order | Driven by silent ETA fluctuations and lack of arrival certainty. |
-| 🎫 **62% Support Tickets** | Dominates live chat queues | Inbound "Where Is My Order?" tickets triggered by uncommunicated delays[cite: 1]. |
-| ⭐ **1-Star Rating Skew** | Skews restaurant & rider scores | Food taste ratings penalized unfairly due to wait-time perception[cite: 2]. |
-| 📞 **0.38 Calls / Order** | Direct delivery disruption | Communication friction caused by unreadable English gate notes or pet hazards[cite: 1]. |
+| 🎫 **62% Support Tickets** | Dominates live chat queues | Inbound "Where Is My Order?" tickets triggered by uncommunicated delays. |
+| ⭐ **1-Star Rating Skew** | Skews restaurant & rider scores | Food taste ratings penalized unfairly due to wait-time perception. |
+| 📞 **0.38 Calls / Order** | Direct delivery disruption | Communication friction caused by unreadable English gate notes or pet hazards. |
 
 ---
 
@@ -58,9 +58,9 @@ ME-TIME computes the live available time budget ($\text{Time Budget} = \text{Liv
 **The 5 Post-Order Systemic Failures:**
 1. **Temporal Uncertainty & Tracking Anxiety:** The psychological burden of the "dead wait" window.
 2. **Unproductive Multitasking & Attention Fragmentation:** Passive doom-scrolling with zero structured wait utilities.
-3. **Logistics Slippage & Unexplained Delay Escalation:** Proactive communication vacuum causing live chat surges[cite: 1].
-4. **Final-Mile Handoff, Linguistic & Safety Friction:** Gate navigation breakdowns, unannounced door arrivals, and safety risks[cite: 1].
-5. **Feedback Blending & Rating Contamination:** The blind spot where wait anxiety contaminates culinary and driver ratings[cite: 2].
+3. **Logistics Slippage & Unexplained Delay Escalation:** Proactive communication vacuum causing live chat surges.
+4. **Final-Mile Handoff, Linguistic & Safety Friction:** Gate navigation breakdowns, unannounced door arrivals, and safety risks.
+5. **Feedback Blending & Rating Contamination:** The blind spot where wait anxiety contaminates culinary and driver ratings.
 
 ### 1. Temporal Uncertainty & Compulsive Map Tracking (The "Dead Wait")
 
