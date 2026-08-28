@@ -1,11 +1,11 @@
 # Product Requirements Document (PRD)
 
-**Title:** ME-TIME™ — The Ambient Post-Order Experience Engine
-**Subtitle:** Transforming Delivery Wait Times into Time-Budgeted Personal Leisure & Screen-Off Content  
-**Document Version:** 1.0-Enterprise
-**Document Owner:** Nithish — Product Lead
-**Target Host Platforms:** Swiggy, Zomato, Uber Eats, DoorDash
-**Status:** Ready for Engineering & Pilot Integration  
+**Title:** ME-TIME™ — The Ambient Post-Order Experience Engine</br>
+**Subtitle:** Transforming Delivery Wait Times into Time-Budgeted Personal Leisure & Screen-Off Content</br>  
+**Document Version:** 1.0-Enterprise</br>
+**Document Owner:** Nithish — Product Lead</br>
+**Target Host Platforms:** Swiggy, Zomato, Uber Eats, DoorDash</br>
+**Status:** Ready for Engineering & Pilot Integration</br>  
   
 
 ---
