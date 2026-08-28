@@ -1,54 +1,63 @@
--- 1. MULTI-TENANT ISOLATION
-CREATE TABLE tenants (
+-- =========================================================================
+-- ME-TIME™ Relational Database Schema (PostgreSQL DDL)
+-- Version: 1.1-Enterprise
+-- Target: Shadow Order Lifecycle, Content Caching & PWS Telemetry
+-- =========================================================================
+
+CREATE TABLE IF NOT EXISTS tenants (
     tenant_id VARCHAR(32) PRIMARY KEY,
     tenant_name VARCHAR(120) NOT NULL,
-    vertical VARCHAR(40) NOT NULL, -- 'food_delivery', 'quick_commerce'
+    vertical VARCHAR(40) NOT NULL,
     status VARCHAR(20) DEFAULT 'active',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. SHADOW ORDER STATE ENGINE
-CREATE TABLE orders (
-    order_id VARCHAR(32) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS orders (
+    order_id VARCHAR(64) PRIMARY KEY,
     tenant_id VARCHAR(32) REFERENCES tenants(tenant_id),
-    customer_id VARCHAR(32) NOT NULL,
-    status VARCHAR(20) NOT NULL, -- 'cooking', 'picked_up', 'in_transit', 'delivered'
-    original_eta TIMESTAMP WITH TIME ZONE NOT NULL,
-    current_eta TIMESTAMP WITH TIME ZONE NOT NULL,
-    cuisine_category VARCHAR(40),
-    device_type VARCHAR(20),
+    customer_hash VARCHAR(128) NOT NULL,
+    current_eta_minutes INT NOT NULL,
+    status VARCHAR(30) NOT NULL, -- 'cooking', 'picked_up', 'in_transit', 'doorstep', 'delivered'
+    recipient_type VARCHAR(20) DEFAULT 'myself', -- 'myself', 'friend', 'family', 'others'
+    drop_mode VARCHAR(20) DEFAULT 'normal', -- 'normal', 'dog', 'gate', 'quiet'
+    driver_lang VARCHAR(10) DEFAULT 'ta', -- 'ta', 'hi', 'en'
+    driver_theme_preference VARCHAR(20) DEFAULT 'auto', -- 'auto', 'day', 'night'
+    is_delayed BOOLEAN DEFAULT FALSE,
+    delay_minutes INT DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-CREATE INDEX idx_orders_tenant_status ON orders(tenant_id, status);
 
--- 3. LOGISTICS SLIPPAGE & EXPLANATION EVENTS
-CREATE TABLE delay_events (
-    delay_event_id BIGSERIAL PRIMARY KEY,
-    order_id VARCHAR(32) REFERENCES orders(order_id),
-    slippage_minutes INT NOT NULL,
-    logistics_status_code VARCHAR(40),
-    message_text VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS delay_events (
+    event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id VARCHAR(64) REFERENCES orders(order_id),
+    added_delay_minutes INT NOT NULL,
+    reason_code VARCHAR(40) NOT NULL, -- 'traffic_congestion', 'kitchen_backlog', 'weather'
+    auto_appended_track_id VARCHAR(64),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4. CURATED AMBIENT CONTENT ITEMS
-CREATE TABLE content_items (
-    content_id VARCHAR(32) PRIMARY KEY,
-    type VARCHAR(30) NOT NULL, -- 'podcast', 'music', 'news', 'game'
-    title VARCHAR(120) NOT NULL,
-    duration_seconds INT NOT NULL,
-    provider_name VARCHAR(60) NOT NULL, -- 'Spotify', 'Audible', 'Reuters'
-    deep_link VARCHAR(255) NOT NULL,
-    category_tags VARCHAR(100),
-    active BOOLEAN DEFAULT TRUE
-);
-
--- 5. PERCEIVED WAIT SATISFACTION (PWS) FEEDBACK (IDEMPOTENT)
-CREATE TABLE feedback_responses (
-    feedback_id BIGSERIAL PRIMARY KEY,
-    order_id VARCHAR(32) UNIQUE REFERENCES orders(order_id),
-    response_value VARCHAR(20) NOT NULL CHECK (response_value IN ('short_fine', 'long_frustrating', 'no_response')),
-    response_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+CREATE TABLE IF NOT EXISTS content_items (
+    content_id VARCHAR(64) PRIMARY KEY,
+    category VARCHAR(30) NOT NULL, -- 'podcasts', 'music', 'news', 'games'
+    title VARCHAR(255) NOT NULL,
+    provider VARCHAR(80) NOT NULL,
+    duration_minutes INT NOT NULL,
+    stream_url TEXT NOT NULL,
+    tags TEXT[],
+    is_queue_tail BOOLEAN DEFAULT FALSE, -- Identifies ambient transition tracks
+    precache_eligible BOOLEAN DEFAULT TRUE, -- Flag for client IndexedDB caching
+    locale VARCHAR(10) DEFAULT 'en',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS feedback_responses (
+    feedback_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id VARCHAR(64) UNIQUE REFERENCES orders(order_id),
+    pws_rating VARCHAR(30) NOT NULL, -- 'short_fine', 'long_frustrating'
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_orders_tenant ON orders(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_content_category ON content_items(category, duration_minutes);
+CREATE INDEX IF NOT EXISTS idx_feedback_order ON feedback_responses(order_id);

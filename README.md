@@ -1,24 +1,84 @@
-# ME-TIME™ — Ambient Post-Order Engagement Engine
+# ME-TIME™ — The Ambient Post-Order Experience Engine
 
-> Converting dead delivery wait times (20–45 min) into personalized, screen-off leisure sessions.
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg)](#)
+[![Version](https://img.shields.io/badge/Version-1.1--Enterprise-blue.svg)](#)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1.0-brightgreen.svg)](docs/openapi.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 🚀 Live Demo & Platform Hub
-- **Interactive Showcase & Documentation:** [Launch ME-TIME Live Hub](https://YOUR-DEPLOYED-URL.vercel.app)
+> **Slogan:** *"Turn Dead Wait into Prime Time"*  
+> **Motto:** *"Your Time, Reclaimed. Your Food, On Time."*
 
-## 📌 Problem Statement
-81% of food delivery consumers experience tracking anxiety, checking active orders 2–5+ times per delivery. ME-TIME addresses the "waiting economy" by streaming exact time-budgeted content matched to delivery SLAs ($\text{Duration} \le \text{ETA}$).
+ME-TIME™ is an ambient post-order experience engine embedded directly into on-demand food delivery platforms (Swiggy, Zomato, Uber Eats, DoorDash). It computes the live available time budget ($\text{Time Budget} = \text{Live ETA} - \text{Current Time}$) to deliver curated, screen-off audio streams, micro-podcasts, and industry briefs that conclude precisely 2 minutes before the delivery partner reaches the doorstep[cite: 1].
 
-## ✨ Key Capabilities
-- **1-Tap Ambient Auto-Play:** Instant audio session matching remaining wait times with screen-off background streaming.
-- **Dynamic Delay Auto-Append:** Reframes delivery delays ($+10\text{m}$) by appending companion audio without manual re-selection.
-- **Audio-Ducked Proximity Knock:** Lowers media volume to 10% when driver crosses the $<50\text{m}$ geofence and triggers a 3D animated knock alert.
-- **Multilingual Driver Terminal:** Translates customer delivery notes and entrance landmarks into Tamil, Hindi, and English in real time.
+---
 
-## 🛠️ Repository Layout
-- `index.html`: Unified web showcase (Dual View Sandbox, PRD, SwaggerUI, Database Schema).
-- `docs/PRD.md`: Complete Product Requirements Document.
-- `docs/openapi.json`: OpenAPI 3.1 REST API specification.
-- `docs/schema.sql`: PostgreSQL multi-tenant database DDL.
+## 🌟 Key Capabilities
 
-## 📄 License
-MIT License. Open for portfolio and evaluation use.
+* **⏱️ Arrival-Aware Time Budgeting:** Dynamically bounds audio queues to real-time logistics SLAs[cite: 1].
+* **⏳ Dynamic Queue Auto-Extension:** Automatically queues companion bonus tracks (+10m) upon traffic or kitchen delays to reframe wait time positively[cite: 1].
+* **🚪 Doorstep Proximity & 3D Knock HUD:** Automatically ducks active audio volume to 10% within $<50\text{m}$ of arrival and triggers synchronized haptic double-knocks[cite: 1].
+* **🌐 Localized Driver Terminal:** Auto-translates customer instructions and visual landmark cards into Tamil, Hindi, and English with dynamic Auto/Day/Night themes and 1-tap TTS voice readout[cite: 1].
+* **⚡ Queue-Tail Continuity & Pre-Caching:** Automatically bridges finished audio with lo-fi ambient tails and pre-caches top tracks to prevent elevator/basement dropouts[cite: 1].
+* **📊 1-Tap Perceived Wait Satisfaction (PWS):** Dedicated post-delivery survey (`short_fine` vs. `long_frustrating`) to isolate wait sentiment from food ratings[cite: 1].
+
+---
+
+## 📂 Project Structure
+
+```text
+me-time-engine/
+├── index.html            # Interactive Platform Showcase & Live Dual Sandbox
+├── LICENSE               # MIT Open Source License
+├── README.md             # Project Overview & Architecture Reference
+└── docs/
+    ├── PRD.md            # Enterprise Product Requirements Document
+    ├── user_guide.md     # Comprehensive End-User & Driver Operations Manual
+    ├── openapi.json      # OpenAPI 3.1 REST API Specification
+    └── schema.sql        # PostgreSQL Multi-Tenant Relational Schema
+🚀 Quick Start & Local Preview
+1. View Interactive Showcase & API Docs
+You can open index.html directly in any modern browser to access the full testing orchestrator, dual smartphone simulation, embedded PRD, User Guide, Swagger API explorer, and Schema DDL[cite: 1].
+
+Bash
+# Option A: Open directly
+open index.html # On macOS
+start index.html # On Windows
+
+# Option B: Run a local static server
+npx serve .
+2. Validate OpenAPI Specification
+Bash
+# Lint OpenAPI schema
+npx @redocly/cli lint docs/openapi.json
+🏗️ Architecture & SDK Boundary
+Plaintext
+┌───────────────────────────┐                ┌────────────────────────────┐
+│   HOST PLATFORM BACKEND   │                │   CONTENT PARTNER GATEWAY  │
+│      (Swiggy/Zomato)      │                │ (Audible, Spotify, Reuters)│
+└─────────────┬─────────────┘                └─────────────┬──────────────┘
+              │ (Order Lifecycle Webhooks)                 │ (Catalog Sync)
+              ▼                                            ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    ME-TIME ENGINE (MULTI-TENANT API)                    │
+│    - Time-Budget Matcher  - Dynamic Delay Extender  - Locale Translator │
+└────────────────────┬─────────────────────────────┬──────────────────────┘
+                     │                             │
+                     ▼                             ▼
+       ┌───────────────────────────┐ ┌───────────────────────────┐
+       │   CUSTOMER APP SURFACE    │ │   DRIVER APP TERMINAL     │
+       │ (Ambient Audio + Live ETA)│ │(Multilingual Fulfillment) │
+       └───────────────────────────┘ └───────────────────────────┘
+📄 Documentation Suite
+📘 Product Requirements Document (PRD)
+
+📗 End-User Guide & Operations Manual
+
+📙 OpenAPI 3.1 Specification
+
+🗄️ PostgreSQL Relational Schema
+
+📜 License
+Distributed under the MIT License. See LICENSE for more information.
+
+
+---

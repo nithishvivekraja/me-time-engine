@@ -225,6 +225,20 @@ ME-TIME runs as a lightweight, read-only client SDK ($\le 150\text{ KB}$ gzipped
 
 ---
 
+### 4.6 Feature 6: Queue-Tail Ambient Bridge & ETA Gap Handling
+* **Description:** Manages scenarios where primary audio content finishes while delivery transit remains active ($ETA > 0$).
+* **Business Logic:** When primary track playback ends and the order state is neither `doorstep` nor `delivered`, the SDK transitions into a **Lo-Fi Ambient Fade** or surfaces a 2-minute micro-trivia card to maintain background continuity.
+
+### 4.7 Feature 7: Offline Resilience & Secure Audio Pre-Caching
+* **Description:** Prevents stuttering and audio loss when the customer enters connectivity dead zones (elevators, apartment basements).
+* **Mechanism:** Upon `order_created` webhook ingestion, the client SDK pre-caches the top 3 audio candidate streams into sandboxed local storage (`IndexedDB` / mobile sandbox) using low-bitrate AAC/Opus formats.
+
+### 4.8 Feature 8: Dynamic Ambient Theming & Driver High-Glare Ergonomics
+* **Description:** The Driver Terminal dynamically adapts contrast based on solar time and device ambient light sensors (`AmbientLightSensor` and OS color-scheme preferences).
+* **Manual Override:** Drivers can tap the header theme button to cycle between **Auto Theme (Ambient-Synced)**, **Day Mode (Forced High-Contrast)**, and **Night Mode (Dark OLED)**.
+
+---
+
 ## 5. End-to-End Visual Workflow & Component Markup Matrix
 
 | Lifecycle Step | Window / Trigger | Customer App Interface State | Driver Terminal State | System Event / Action |

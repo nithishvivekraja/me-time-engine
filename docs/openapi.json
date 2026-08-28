@@ -1,64 +1,59 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "ME-TIME™ Experience Engine API",
-    "version": "1.0.0",
-    "description": "Stateless multi-tenant gateway for wait-time optimization and audio delivery"
+    "title": "ME-TIME™ Experience Engine Multi-Tenant API",
+    "version": "1.1.0",
+    "description": "Stateless waiting economy SDK gateway powering dynamic time-budgeted content, delay mitigation, and multilingual last-mile handoffs."
   },
+  "servers": [
+    {
+      "url": "https://api.me-time.internal/v1",
+      "description": "Production Multi-Tenant Edge Gateway"
+    }
+  ],
   "paths": {
-    "/v1/webhooks/order-events": {
+    "/webhooks/order-events": {
       "post": {
         "summary": "Ingest Host Order Lifecycle Event",
-        "description": "Receives webhooks for order creation, pickup, and delivery transitions",
+        "description": "Consumes order status transitions and recalculates time budgets.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "order_id": { "type": "string", "example": "ORD_8841" },
-                  "event_type": { "type": "string", "example": "order_created" },
-                  "eta_minutes": { "type": "integer", "example": 28 },
-                  "recipient_context": { "type": "string", "example": "myself" },
-                  "drop_off_instruction": { "type": "string", "example": "dog_alert" }
-                }
+                "$ref": "#/components/schemas/OrderEventPayload"
               }
             }
           }
         },
         "responses": {
-          "202": { "description": "Event accepted and shadow state updated" }
+          "202": {
+            "description": "Event accepted and pipeline triggered."
+          }
         }
       }
     },
-    "/v1/orders/{orderId}/experience": {
+    "/orders/{orderId}/experience": {
       "get": {
-        "summary": "Get Composite Waiting Experience Payload",
-        "description": "Fetches live ETA, time-budgeted content items, and proximity knock flags",
+        "summary": "Fetch Composite Waiting Experience Payload",
+        "description": "Returns calculated time budget, pre-cached content candidates, and active driver terminal instructions in <300ms.",
         "parameters": [
-          { "name": "orderId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
-            "description": "Composite payload returned in <300ms",
+            "description": "Composite experience payload.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "eta_minutes": { "type": "integer", "example": 24 },
-                    "traffic_status": { "type": "string", "example": "SMOOTH" },
-                    "auto_play_item": {
-                      "type": "object",
-                      "properties": {
-                        "title": { "type": "string", "example": "Generative AI Landscape 2026" },
-                        "duration_minutes": { "type": "integer", "example": 12 },
-                        "provider": { "type": "string", "example": "Spotify Tech" }
-                      }
-                    },
-                    "doorstep_knock_flag": { "type": "boolean", "example": false }
-                  }
+                  "$ref": "#/components/schemas/ExperienceResponse"
                 }
               }
             }
@@ -66,27 +61,90 @@
         }
       }
     },
-    "/v1/orders/{orderId}/feedback": {
+    "/orders/{orderId}/feedback": {
       "post": {
         "summary": "Submit 1-Tap Perceived Wait Satisfaction (PWS)",
+        "description": "Records idempotent post-delivery wait sentiment.",
         "parameters": [
-          { "name": "orderId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "response_value": { "type": "string", "enum": ["short_fine", "long_frustrating"] }
-                }
+                "$ref": "#/components/schemas/FeedbackSubmission"
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Feedback recorded idempotently" }
+          "201": {
+            "description": "Feedback recorded."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OrderEventPayload": {
+        "type": "object",
+        "required": ["order_id", "event_type", "eta_minutes"],
+        "properties": {
+          "order_id": { "type": "string", "example": "ORD_99182" },
+          "event_type": { "type": "string", "enum": ["order_created", "eta_updated", "doorstep_breach", "delivered"] },
+          "eta_minutes": { "type": "integer", "example": 24 },
+          "recipient_type": { "type": "string", "enum": ["myself", "friend", "family", "others"], "default": "myself" },
+          "drop_mode": { "type": "string", "enum": ["normal", "dog", "gate", "quiet"], "default": "normal" }
+        }
+      },
+      "ExperienceResponse": {
+        "type": "object",
+        "properties": {
+          "order_id": { "type": "string" },
+          "time_budget_minutes": { "type": "integer", "example": 24 },
+          "is_delayed": { "type": "boolean", "example": false },
+          "queue_tail_active": { "type": "boolean", "example": false },
+          "recommended_items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ContentItem" }
+          },
+          "driver_terminal": {
+            "type": "object",
+            "properties": {
+              "preferred_lang": { "type": "string", "example": "ta" },
+              "theme_mode": { "type": "string", "enum": ["auto", "day", "night"], "default": "auto" },
+              "translated_drop_note": { "type": "string" },
+              "caution_badge": { "type": "string", "nullable": true }
+            }
+          }
+        }
+      },
+      "ContentItem": {
+        "type": "object",
+        "properties": {
+          "content_id": { "type": "string" },
+          "title": { "type": "string" },
+          "provider": { "type": "string" },
+          "category": { "type": "string" },
+          "duration_minutes": { "type": "integer" },
+          "is_queue_tail": { "type": "boolean" },
+          "precache_eligible": { "type": "boolean" }
+        }
+      },
+      "FeedbackSubmission": {
+        "type": "object",
+        "required": ["pws_rating"],
+        "properties": {
+          "pws_rating": { "type": "string", "enum": ["short_fine", "long_frustrating"] }
         }
       }
     }
